@@ -1,5 +1,4 @@
-[file name]: ProfessionalTestEngine.tsx
-[file content begin]
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_INTERNSHIPS } from '../constants';
@@ -611,4 +610,3 @@ const ProfessionalTestEngine: React.FC = () => {
 };
 
 export default ProfessionalTestEngine;
-[file content end]
