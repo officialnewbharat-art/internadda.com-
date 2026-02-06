@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MOCK_INTERNSHIPS } from '../constants';
@@ -80,10 +79,10 @@ const InternshipDetail: React.FC = () => {
             </div>
           </div>
 
-          {/* Cashfree Payment Button */}
+          {/* Cashfree Payment Button - REPLACE YOUR-APP-ID HERE */}
           <div className="mb-6">
             <form>
-              <a href="https://payments.cashfree.com/forms/internadda" target="_parent">
+              <a href="https://payments.cashfree.com/forms/11077281f181acdf5262a38723e8277011" target="_blank" rel="noopener noreferrer">
                 <div className="button-container" style={{
                   background: '#41478a',
                   border: '1px solid black',
