@@ -82,7 +82,7 @@ const InternshipDetail: React.FC = () => {
           {/* Cashfree Payment Button - REPLACE YOUR-APP-ID HERE */}
           <div className="mb-6">
             <form>
-              <a href="https://payments.cashfree.com/forms/11077281f181acdf5262a38723e8277011" target="_blank" rel="noopener noreferrer">
+              <a href="https://payments.cashfree.com/forms/internadda" target="_blank" rel="noopener noreferrer">
                 <div className="button-container" style={{
                   background: '#41478a',
                   border: '1px solid black',
