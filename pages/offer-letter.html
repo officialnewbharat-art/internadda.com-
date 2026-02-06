@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internadda | Offer Letter</title>
+    <link rel="icon" type="image/x-icon" href="https://drive.google.com/uc?export=view&id=117kBU2vFBqEXbrf2q7Kua8R7BSbUNCsa">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            font-family: 'Inter', sans-serif;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 15px;
+        }
+        
+        .offer-letter-container {
+            width: 100%;
+            max-width: 1000px;
+            background: #ffffff;
+            border-radius: 4px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e1e8f0;
+        }
+        
+        .border-decoration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #4338ca 0%, #7c3aed 50%, #4338ca 100%);
+        }
+        
+        .content-wrapper {
+            padding: 50px 70px;
+            position: relative;
+        }
+        
+        /* Header Section - Compact */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            height: 55px;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .arjuna-logo {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+            border-left: 1px solid #e1e8f0;
+            padding-left: 15px;
+        }
+        
+        .offer-badge {
+            background: #4338ca;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Title Section */
+        .title-section {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        
+        .main-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 40px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 5px;
+        }
+        
+        .ref-number {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Body Content */
+        .body-content {
+            margin: 30px 0;
+        }
+        
+        .recipient-info {
+            margin-bottom: 25px;
+            line-height: 1.5;
+            color: #334155;
+        }
+        
+        .subject-line {
+            font-weight: 700;
+            font-size: 18px;
+            color: #4338ca;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .salutation {
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        
+        .letter-body {
+            line-height: 1.7;
+            font-size: 15px;
+            color: #334155;
+            margin-bottom: 25px;
+        }
+        
+        .letter-body p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        /* Internship Details */
+        .internship-highlight {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-left: 3px solid #4338ca;
+            margin: 20px 0;
+            border-radius: 0 3px 3px 0;
+        }
+        
+        .internship-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+        
+        .detail-item {
+            display: flex;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            min-width: 110px;
+            color: #475569;
+        }
+        
+        .detail-value {
+            color: #0f172a;
+            font-weight: 500;
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-top: 30px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .signature-section {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .signature-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 8px;
+        }
+        
+        .signature-title {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        
+        .signature-line {
+            width: 200px;
+            height: 1px;
+            background: #334155;
+            margin: 25px auto 8px;
+        }
+        
+        .verification-section {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .qr-code {
+            width: 100px;
+            height: 100px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        
+        .verification-text {
+            font-size: 11px;
+            color: #475569;
+            max-width: 120px;
+            margin: 0 auto;
+        }
+        
+        .certificate-id {
+            background: #f1f5f9;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #0f172a;
+            margin-top: 10px;
+        }
+        
+        .date-section {
+            text-align: right;
+            margin-bottom: 20px;
+            font-weight: 500;
+            color: #475569;
+            font-size: 14px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .content-wrapper {
+                padding: 40px 50px;
+            }
+            
+            .main-title {
+                font-size: 34px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 30px 25px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .offer-badge {
+                align-self: flex-start;
+            }
+            
+            .main-title {
+                font-size: 30px;
+            }
+            
+            .footer {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+            
+            .internship-details {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .offer-letter-container {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offer-letter-container">
+        <div class="border-decoration"></div>
+        
+        <div class="content-wrapper">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo-container">
+                    <img src="https://drive.google.com/uc?export=view&id=117kBU2vFBqEXbrf2q7Kua8R7BSbUNCsa" class="logo" alt="Internadda Logo" onerror="this.style.display='none'">
+                    <img src="https://drive.google.com/uc?export=view&id=1cOHWWgMaTqBk2EjIhaoJXnmZy-Fudbiq" class="arjuna-logo" alt="ArjunaAI Logo" onerror="this.style.display='none'">
+                </div>
+                <div class="offer-badge">OFFICIAL OFFER LETTER</div>
+            </div>
+            
+            <!-- Title -->
+            <div class="title-section">
+                <h1 class="main-title">INTERNSHIP OFFER</h1>
+                <div class="ref-number">Ref: INTAD/PYDEV/2024/<span id="ref-id">0892</span></div>
+            </div>
+            
+            <!-- Body Content -->
+            <div class="body-content">
+                <div class="date-section" id="current-date">Date: Loading...</div>
+                
+                <div class="recipient-info">
+                    To: <span id="recipient-name" class="highlight-name">Aarav Sharma</span><br>
+                    Contact: <span id="recipient-contact">axxxxxxxx@email.com</span>
+                </div>
+                
+                <div class="subject-line" id="subject-line">
+                    Loading...
+                </div>
+                
+                <div class="salutation">Dear <span id="salutation-name">Aarav</span>,</div>
+                
+                <div class="letter-body">
+                    <p>Congratulations! We are pleased to offer you the <strong id="position-text">Python Developer Internship</strong> at Internadda, effective <strong id="start-date">[Start Date]</strong>.</p>
+                    
+                    <p>This offer recognizes your outstanding performance during the 6-month Development Program at ArjunaAI. Your technical skills and project deliverables have been impressive.</p>
+                    
+                    <div class="internship-highlight">
+                        <strong>Internship Terms:</strong>
+                        <div class="internship-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Position:</div>
+                                <div class="detail-value" id="detail-position">Python Developer Intern</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Duration:</div>
+                                <div class="detail-value" id="detail-duration">6 Months</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Stipend:</div>
+                                <div class="detail-value" id="detail-stipend">₹15,000 - 20,000/month</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Location:</div>
+                                <div class="detail-value" id="detail-location">Remote / Hyderabad</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Projects:</div>
+                                <div class="detail-value" id="detail-projects">Django/Flask, APIs, Cloud</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Mentorship:</div>
+                                <div class="detail-value" id="detail-mentorship">Senior Python Lead</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p>You will work on live projects and gain hands-on experience. Successful completion may lead to a full-time position.</p>
+                    
+                    <p>To accept, please sign and return this letter within 7 days. Contact HR at hr@internadda.com with any questions.</p>
+                    
+                    <p>We look forward to your contribution to our team.</p>
+                </div>
+                
+                <div class="salutation">
+                    Sincerely,<br>
+                    Internadda Technologies
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer">
+                <div class="signature-section">
+                    <img src="https://drive.google.com/uc?export=view&id=1QazwGaRJjiK9UpQR5KzIOSyanQEwbru0" alt="Signature" class="signature-line" style="width: 200px; height: auto; margin: 25px auto 8px;" onerror="this.style.display='none'">
+                    <div class="signature-name">Lucky Tiwari</div>
+                    <div class="signature-title">Head of Talent Acquisition</div>
+                </div>
+                
+                <div class="verification-section">
+                    <div class="qr-code">
+                        <img src="https://drive.google.com/uc?export=view&id=1trjD25RAzU0nXIb41FIiGN_ChvBbMLG8" alt="QR Code" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.innerHTML='QR Code'">
+                    </div>
+                    <div class="verification-text">Scan to verify authenticity</div>
+                    <div class="certificate-id" id="cert-id">Loading ID...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Set values from URL parameters
+        const recipientName = urlParams.get('name') || 'Aarav Sharma';
+        const recipientContact = urlParams.get('contact') || 'axxxxxxxx@email.com';
+        const position = urlParams.get('position') || 'Python Developer Intern';
+        const stipend = urlParams.get('stipend') || '₹15,000 - 20,000/month';
+        const duration = urlParams.get('duration') || '6 Months';
+        const locationValue = urlParams.get('location') || 'Remote / Hyderabad';
+        const projects = urlParams.get('projects') || 'Django/Flask, APIs, Cloud';
+        const mentorship = urlParams.get('mentorship') || 'Senior Python Lead';
+        
+        // Set recipient details
+        document.getElementById('recipient-name').textContent = recipientName;
+        document.getElementById('recipient-contact').textContent = recipientContact;
+        document.getElementById('subject-line').textContent = `${position} at Internadda`;
+        
+        // Extract first name for salutation
+        const firstName = recipientName.split(' ')[0];
+        document.getElementById('salutation-name').textContent = firstName;
+        
+        // Set position
+        document.getElementById('position-text').textContent = position;
+        
+        // Set details
+        document.getElementById('detail-position').textContent = position;
+        document.getElementById('detail-duration').textContent = duration;
+        document.getElementById('detail-stipend').textContent = stipend;
+        document.getElementById('detail-location').textContent = locationValue;
+        document.getElementById('detail-projects').textContent = projects;
+        document.getElementById('detail-mentorship').textContent = mentorship;
+        
+        // Set dates
+        const currentDate = new Date();
+        const formattedCurrentDate = currentDate.toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        });
+        document.getElementById('current-date').textContent = `Date: ${formattedCurrentDate}`;
+        
+        // Set start date (2 weeks from now)
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() + 14);
+        const formattedStartDate = startDate.toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        });
+        document.getElementById('start-date').textContent = formattedStartDate;
+        
+        // Generate IDs
+        function generateRandomId() {
+            return Math.floor(1000 + Math.random() * 9000);
+        }
+        
+        document.getElementById('ref-id').textContent = generateRandomId();
+        
+        function generateCertificateId() {
+            const prefix = "INTAD";
+            const randomChars = Math.random().toString(36).substring(2, 5).toUpperCase();
+            const timestamp = Date.now().toString().slice(-5);
+            return `${prefix}-${randomChars}-${timestamp}`;
+        }
+        
+        document.getElementById('cert-id').textContent = generateCertificateId();
+        
+        // Print shortcut
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+        
+        // Download as PDF
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+    </script>
+</body>
+</html>
