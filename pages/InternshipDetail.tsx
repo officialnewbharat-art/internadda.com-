@@ -69,12 +69,12 @@ const InternshipDetail: React.FC = () => {
               </div>
 
               <div className="pt-6 border-t border-slate-200 space-y-4">
-                <Link 
-                  to={`/test/real/${id}`}
-                  className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-center block shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all"
-                >
-                  Apply Now (₹199)
-                </Link>
+            <Link 
+              to={`/payment/${id}`}
+              className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-center block shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all"
+            >
+              Apply Now (₹199)
+            </Link>
                 <Link 
                   to={`/test/practice/${id}`}
                   className="w-full border-2 border-indigo-600 text-indigo-600 py-4 rounded-2xl font-bold text-center block hover:bg-indigo-50 transition-all"
