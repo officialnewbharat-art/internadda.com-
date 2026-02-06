@@ -12,10 +12,10 @@ import Settings from "./pages/Settings";
 import ApplyPage from "./pages/ApplyPage";
 import PaymentPage from "./pages/PaymentPage";
 import TestEngine from "./pages/TestEngine";
-import ProfessionalTestEngine from "./pages/ProfessionalTestEngine"; // NEW IMPORT
+import ProfessionalTestEngine from "./pages/ProfessionalTestEngine";
 import Tests from "./pages/Tests";
 import ResultPage from "./pages/ResultPage";
-import PaymentSuccess from "./pages/PaymentSuccess"; // NEW IMPORT
+import PaymentSuccess from "./pages/PaymentSuccess";
 import SuccessStories from "./pages/SuccessStories";
 import TeamPage from "./pages/TeamPage";
 import HiringProcess from "./pages/HiringProcess";
@@ -139,13 +139,15 @@ const App: React.FC = () => {
             <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
             <Route path="/profile" element={user ? <Profile user={user} /> : <Navigate to="/login" />} />
             
-            {/* UPDATED: Passing setUser to Settings to fix data update error */}
             <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/login" />} />
             
-            <Route path="/apply/:id" element={user ? <ApplyPage user={user} /> : <Navigate to="/login" />} />
+            {/* Redirect /apply/:id to internship detail (which has payment modal) */}
+            <Route path="/apply/:id" element={<Navigate to={`/internship/:id`} />} />
+            
+            {/* Keep PaymentPage for direct access if needed */}
             <Route path="/payment/:id" element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />} />
             
-            {/* NEW ROUTES FOR PAYMENT FLOW */}
+            {/* Payment Success Page */}
             <Route path="/payment-success" element={<PaymentSuccess />} />
             
             {/* TEST ROUTES */}
