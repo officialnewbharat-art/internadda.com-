@@ -12,8 +12,10 @@ import Settings from "./pages/Settings";
 import ApplyPage from "./pages/ApplyPage";
 import PaymentPage from "./pages/PaymentPage";
 import TestEngine from "./pages/TestEngine";
+import ProfessionalTestEngine from "./pages/ProfessionalTestEngine"; // NEW IMPORT
 import Tests from "./pages/Tests";
 import ResultPage from "./pages/ResultPage";
+import PaymentSuccess from "./pages/PaymentSuccess"; // NEW IMPORT
 import SuccessStories from "./pages/SuccessStories";
 import TeamPage from "./pages/TeamPage";
 import HiringProcess from "./pages/HiringProcess";
@@ -142,7 +144,15 @@ const App: React.FC = () => {
             
             <Route path="/apply/:id" element={user ? <ApplyPage user={user} /> : <Navigate to="/login" />} />
             <Route path="/payment/:id" element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />} />
+            
+            {/* NEW ROUTES FOR PAYMENT FLOW */}
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            
+            {/* TEST ROUTES */}
             <Route path="/test/:id" element={user ? <TestEngine user={user} /> : <Navigate to="/login" />} />
+            <Route path="/test/practice/:id" element={user ? <TestEngine user={user} /> : <Navigate to="/login" />} />
+            <Route path="/test/real/:id" element={user ? <ProfessionalTestEngine /> : <Navigate to="/login" />} />
+            
             <Route path="/tests" element={user ? <Tests user={user} /> : <Navigate to="/login" />} />
             <Route path="/result/:id" element={user ? <ResultPage user={user} /> : <Navigate to="/login" />} />
 
