@@ -1,0 +1,7 @@
+{
+  "name": "Internadda Internship Platform",
+  "description": "A high-performance internship marketplace and skill-test platform featuring real-time anti-cheat testing, integrated payments, and AI-driven skill assessments.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
