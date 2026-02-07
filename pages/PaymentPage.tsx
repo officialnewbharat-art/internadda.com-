@@ -1,13 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShieldCheck, Lock, Award, CheckCircle, Loader2 } from 'lucide-react';
 import { MOCK_INTERNSHIPS } from '../constants';
-
-interface PaymentStatus {
-  status: 'pending' | 'success' | 'failed';
-  orderId?: string;
-  transactionId?: string;
-}
 
 const PaymentPage: React.FC = () => {
   const { id } = useParams();
@@ -15,31 +9,40 @@ const PaymentPage: React.FC = () => {
   const internship = MOCK_INTERNSHIPS.find(i => i.id === id) || MOCK_INTERNSHIPS[0];
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentVerified, setPaymentVerified] = useState(false);
+  const checkInterval = useRef<NodeJS.Timeout | null>(null);
 
-  // 1. MONITOR STORAGE AND URL CHANGES
+  // 1. THE FAST TRACKER: Listen for storage events from any window
   useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      // Catch success from other tabs (Cashfree Response Page)
-      if (e.key === `payment_${id}`) {
-        const data = JSON.parse(e.newValue || '{}');
+    const handleSync = (e: StorageEvent) => {
+      if (e.key === `payment_${id}` && e.newValue) {
+        const data = JSON.parse(e.newValue);
         if (data.status === 'success') {
-          setPaymentVerified(true);
-          setTimeout(() => navigate(`/test/real/${id}`), 1500);
+          triggerSuccess();
         }
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [id, navigate]);
+    window.addEventListener('storage', handleSync);
+    return () => window.removeEventListener('storage', handleSync);
+  }, [id]);
 
-  const initiatePayment = async () => {
+  const triggerSuccess = () => {
+    if (checkInterval.current) clearInterval(checkInterval.current);
+    setPaymentVerified(true);
+    setIsProcessing(false);
+    // Instant redirect after showing success UI for 1.5s
+    setTimeout(() => {
+      navigate(`/test/real/${id}`);
+    }, 1500);
+  };
+
+  const initiatePayment = () => {
     setIsProcessing(true);
     const orderId = `ORD_${Date.now()}`;
     
-    // Use the exact Cashfree form URL provided
+    // Open Cashfree
     const paymentUrl = `https://payments.cashfree.com/forms/internadda?order_id=${orderId}&order_amount=199`;
-    const paymentWindow = window.open(paymentUrl, 'CashfreePayment', 'width=500,height=700');
+    const paymentWindow = window.open(paymentUrl, 'CashfreePayment', 'width=500,height=720,top=100,left=100');
 
     if (!paymentWindow) {
       alert('Please allow popups to complete payment');
@@ -47,54 +50,42 @@ const PaymentPage: React.FC = () => {
       return;
     }
 
-    // 2. LIVE TRACKING LOOP
-    const checkPaymentInterval = setInterval(() => {
-      try {
-        // Check if the user has reached the Cashfree Response URL you mentioned
-        // This works if the redirect happens within the same domain/origin setup
-        const currentUrl = paymentWindow.location.href;
-        if (currentUrl.includes('/forms/response/')) {
-          clearInterval(checkPaymentInterval);
-          finalizeSuccess(orderId);
-        }
-      } catch (e) {
-        // Cross-origin might block URL reading, so we fall back to localStorage check
-        const data = JSON.parse(localStorage.getItem(`payment_${id}`) || '{}');
+    // 2. THE WATCHDOG: Poll local storage every 1 second (Fastest way)
+    checkInterval.current = setInterval(() => {
+      const stored = localStorage.getItem(`payment_${id}`);
+      if (stored) {
+        const data = JSON.parse(stored);
         if (data.status === 'success') {
-          clearInterval(checkPaymentInterval);
-          setPaymentVerified(true);
-          navigate(`/test/real/${id}`);
+          triggerSuccess();
         }
       }
 
-      // If user closes window manually
-      if (paymentWindow.closed) {
-        clearInterval(checkPaymentInterval);
-        setIsProcessing(false);
+      // If they closed the window without finishing
+      if (paymentWindow.closed && !paymentVerified) {
+        if (checkInterval.current) clearInterval(checkInterval.current);
+        // Final check just in case it closed exactly as it succeeded
+        const finalCheck = localStorage.getItem(`payment_${id}`);
+        if (finalCheck && JSON.parse(finalCheck).status === 'success') {
+          triggerSuccess();
+        } else {
+          setIsProcessing(false);
+        }
       }
-    }, 2000);
-  };
-
-  const finalizeSuccess = (orderId: string) => {
-    const successData = {
-      status: 'success',
-      orderId: orderId,
-      timestamp: new Date().toISOString()
-    };
-    localStorage.setItem(`payment_${id}`, JSON.stringify(successData));
-    setPaymentVerified(true);
-    navigate(`/test/real/${id}`);
+    }, 1000);
   };
 
   if (paymentVerified) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center bg-white p-8 rounded-3xl shadow-xl border border-emerald-100">
-          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle size={40} className="text-emerald-600" />
+      <div className="min-h-screen bg-white flex items-center justify-center p-6">
+        <div className="text-center animate-in fade-in zoom-in duration-300">
+          <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle size={48} className="text-emerald-600" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900">Payment Successful!</h2>
-          <p className="text-slate-500 mt-2">Redirecting to your final exam...</p>
+          <h2 className="text-3xl font-black text-slate-900 mb-2">Payment Received! ✅</h2>
+          <p className="text-slate-500 font-medium">Setting up your Final Test environment...</p>
+          <div className="mt-8 flex justify-center">
+            <Loader2 className="animate-spin text-emerald-600" size={32} />
+          </div>
         </div>
       </div>
     );
@@ -103,41 +94,52 @@ const PaymentPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-[40px] shadow-2xl border border-slate-100 overflow-hidden">
-        <div className="bg-indigo-600 p-4 text-center text-white text-xs font-bold uppercase tracking-widest">
-          Secure Payment Gateway
+        <div className="bg-indigo-600 py-3 text-center text-white text-[10px] font-black uppercase tracking-[0.2em]">
+          Official Internship Assessment
         </div>
+        
         <div className="p-10 text-center">
           <div className="mb-8">
-            <span className="text-slate-400 text-xs font-bold uppercase">Amount Payable</span>
-            <div className="text-5xl font-black text-slate-900 mt-1">₹199</div>
+            <h1 className="text-2xl font-bold text-slate-900 mb-1">{internship.title}</h1>
+            <p className="text-slate-400 text-sm font-medium">Application Processing Fee</p>
+          </div>
+
+          <div className="bg-slate-50 rounded-3xl py-8 mb-8 border border-slate-100">
+            <div className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Total Amount</div>
+            <div className="text-6xl font-black text-slate-900">₹199</div>
+            <div className="text-emerald-600 text-xs font-bold mt-2 flex items-center justify-center gap-1">
+              <ShieldCheck size={14} /> 100% Secure Transaction
+            </div>
           </div>
 
           {isProcessing ? (
-            <div className="space-y-4">
-              <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mx-auto" />
-              <p className="font-bold text-slate-700">Waiting for Cashfree...</p>
-              <p className="text-xs text-slate-500">Complete payment in the new window</p>
+            <div className="space-y-4 py-4">
+              <div className="relative flex justify-center">
+                <Loader2 className="w-16 h-16 text-indigo-600 animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-indigo-600">LIVE</div>
+              </div>
+              <p className="font-bold text-slate-800">Waiting for Payment...</p>
+              <p className="text-xs text-slate-500 bg-indigo-50 py-2 rounded-lg">
+                Please complete the process in the popup window
+              </p>
             </div>
           ) : (
             <button
               onClick={initiatePayment}
-              className="w-full bg-[#41478a] hover:bg-[#353b75] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02]"
+              className="w-full bg-[#41478a] hover:bg-[#32386e] text-white font-bold py-5 rounded-2xl flex items-center justify-center gap-4 transition-all shadow-xl shadow-indigo-100 active:scale-95"
             >
               <img src="https://cashfreelogo.cashfree.com/cashfreepayments/logosvgs/Group_4355.svg" className="w-8 h-8" alt="CF" />
               <div className="text-left">
-                <div className="text-lg">Pay ₹199 Now</div>
-                <div className="text-[10px] opacity-80">PROCEED TO FINAL TEST</div>
+                <div className="text-xl leading-none">Pay ₹199</div>
+                <div className="text-[10px] opacity-70 mt-1 uppercase tracking-tighter">Instant Test Unlock</div>
               </div>
             </button>
           )}
 
-          <div className="mt-8 pt-6 border-t border-slate-100 grid grid-cols-2 gap-4">
-            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-bold">
-              <ShieldCheck size={14} className="text-emerald-500" /> MSME SECURED
-            </div>
-            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-bold">
-              <Lock size={14} className="text-indigo-500" /> PCI COMPLIANT
-            </div>
+          <div className="mt-10 grid grid-cols-3 gap-2 opacity-40 grayscale">
+            {['UPI', 'CARD', 'NET'].map(m => (
+              <div key={m} className="text-[9px] font-black border border-slate-300 py-1 rounded-md">{m}</div>
+            ))}
           </div>
         </div>
       </div>
