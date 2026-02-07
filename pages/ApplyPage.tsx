@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-// Change 'internships' to 'MOCK_INTERNSHIPS' to fix the build error
 import { MOCK_INTERNSHIPS } from '../constants'; 
 import { ShieldCheck, Clock, CheckCircle, Lock, BadgeCheck } from 'lucide-react';
 
@@ -9,7 +8,6 @@ const ApplyPage: React.FC = () => {
   const navigate = useNavigate();
   const internship = MOCK_INTERNSHIPS.find(i => i.id === id);
 
-  // Prefilling state from user data (Assuming you store user info in localStorage)
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -19,7 +17,6 @@ const ApplyPage: React.FC = () => {
   });
 
   useEffect(() => {
-    // Get user details from localStorage to pre-fill the form
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       const userData = JSON.parse(storedUser);
@@ -27,16 +24,17 @@ const ApplyPage: React.FC = () => {
         ...prev,
         fullName: userData.name || '',
         email: userData.email || '',
-        phone: userData.phone || ''
+        phone: userData.phone || '',
+        // Pre-filling education/college if it exists in user profile
+        college: userData.education || userData.college || ''
       }));
     }
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Your submission logic here
-    alert("Application submitted successfully!");
-    navigate('/dashboard');
+    // Redirecting to the specific payment page for this internship ID
+    navigate(`/payment/${id}`);
   };
 
   if (!internship) return <div className="p-20 text-center">Internship not found</div>;
@@ -44,8 +42,6 @@ const ApplyPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-4">
       <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Main Application Form */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
             <div className="flex items-center gap-3 mb-6">
@@ -54,7 +50,7 @@ const ApplyPage: React.FC = () => {
                </div>
                <div>
                  <h2 className="text-2xl font-bold text-slate-900 leading-tight">Apply for {internship.title}</h2>
-                 <p className="text-slate-500 text-sm">Verified Internship • Free Application</p>
+                 <p className="text-slate-500 text-sm">Personalized Application • Verified Profile</p>
                </div>
             </div>
 
@@ -67,7 +63,6 @@ const ApplyPage: React.FC = () => {
                     value={formData.fullName}
                     onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                    placeholder="John Doe"
                     required
                   />
                 </div>
@@ -76,9 +71,8 @@ const ApplyPage: React.FC = () => {
                   <input 
                     type="email" 
                     value={formData.email}
-                    readOnly // Keeping email read-only for trust/security if logged in
+                    readOnly 
                     className="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 cursor-not-allowed outline-none"
-                    placeholder="john@example.com"
                   />
                 </div>
               </div>
@@ -96,10 +90,10 @@ const ApplyPage: React.FC = () => {
               </div>
 
               <div className="p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer text-center group">
-                <input type="file" className="hidden" id="resume-upload" />
+                <input type="file" className="hidden" id="resume-upload" required />
                 <label htmlFor="resume-upload" className="cursor-pointer">
                   <div className="text-slate-600 font-bold text-sm group-hover:text-indigo-600">Upload Your Resume</div>
-                  <div className="text-slate-400 text-xs mt-1">PDF format highly recommended</div>
+                  <div className="text-slate-400 text-xs mt-1">PDF format required for verification</div>
                 </label>
               </div>
 
@@ -107,19 +101,18 @@ const ApplyPage: React.FC = () => {
                 type="submit"
                 className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 transform hover:-translate-y-1"
               >
-                Submit Secure Application <CheckCircle size={18} />
+                Proceed to Secure Payment <CheckCircle size={18} />
               </button>
             </form>
           </div>
         </div>
 
-        {/* Side Trust & Summary Section */}
         <div className="space-y-6">
           <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
             <h4 className="text-xs font-bold text-slate-400 uppercase mb-6 tracking-widest">Application Summary</h4>
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
-                <Clock className="text-indigo-600" size={20} />
+              <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-xl">
+                {internship.icon || '🚀'}
               </div>
               <div>
                 <div className="text-sm font-bold text-slate-800">{internship.title}</div>
@@ -142,15 +135,8 @@ const ApplyPage: React.FC = () => {
             <div className="flex items-start gap-3">
               <ShieldCheck className="text-indigo-200 mt-1" size={20} />
               <div>
-                <p className="text-sm font-bold">Verified by InternAdda</p>
-                <p className="text-xs text-indigo-100 opacity-80">This role has been manually reviewed for authenticity.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Lock className="text-indigo-200 mt-1" size={20} />
-              <div>
-                <p className="text-sm font-bold">Secure Privacy</p>
-                <p className="text-xs text-indigo-100 opacity-80">Your profile is only visible to the hiring team.</p>
+                <p className="text-sm font-bold">Data Pre-filled</p>
+                <p className="text-xs text-indigo-100 opacity-80">We've used your profile to save you time.</p>
               </div>
             </div>
           </div>
