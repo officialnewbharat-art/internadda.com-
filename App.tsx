@@ -141,8 +141,11 @@ const App: React.FC = () => {
             
             <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/login" />} />
             
-            {/* Redirect /apply/:id to internship detail (which has payment modal) */}
-            <Route path="/apply/:id" element={<Navigate to={`/internship/:id`} />} />
+            {/* Force login before accessing the application form */}
+            <Route 
+              path="/apply/:id" 
+              element={user ? <ApplyPage /> : <Navigate to="/login" />} 
+            />
             
             {/* Keep PaymentPage for direct access if needed */}
             <Route path="/payment/:id" element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />} />
