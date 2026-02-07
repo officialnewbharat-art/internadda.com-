@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { 
-  Menu, X, Briefcase, GraduationCap, ChevronRight, 
-  Settings, LogOut, User as UserIcon, Bell, Home as HomeIcon, 
+  Menu, X, Briefcase, ChevronRight, 
+  Settings, LogOut, User as UserIcon, Home as HomeIcon, 
   Info, BookOpen, ChevronDown
 } from "lucide-react";
 import { User } from "../types";
@@ -14,7 +14,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false); // Desktop dropdown state
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
@@ -25,19 +25,12 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
   }, []);
 
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : 'unset';
   }, [mobileMenuOpen]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = () => setIsProfileOpen(false);
-    if (isProfileOpen) {
-      window.addEventListener('click', handleClickOutside);
-    }
+    if (isProfileOpen) window.addEventListener('click', handleClickOutside);
     return () => window.removeEventListener('click', handleClickOutside);
   }, [isProfileOpen]);
 
@@ -59,7 +52,6 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between">
           
-          {/* Logo Section */}
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="relative w-12 h-12 flex items-center justify-center overflow-hidden">
               <img 
@@ -78,7 +70,6 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
@@ -93,7 +84,6 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
             ))}
           </nav>
 
-          {/* Right Actions */}
           <div className="hidden lg:flex items-center space-x-4">
             {user ? (
               <div className="relative">
@@ -111,12 +101,9 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
                   <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
                 </button>
 
-                {/* Profile Dropdown */}
                 {isProfileOpen && (
                   <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-[110] animate-in fade-in slide-in-from-top-2 duration-200">
-                    <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">
-                      <HomeIcon size={18} className="text-indigo-600" /> Dashboard
-                    </Link>
+                    {/* Dashboard Link Removed */}
                     <Link to="/profile" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">
                       <UserIcon size={18} className="text-indigo-600" /> View Profile
                     </Link>
@@ -145,7 +132,6 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
           <button
             className="lg:hidden p-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-indigo-600 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -155,7 +141,6 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
         </div>
       </div>
 
-      {/* Mobile Menu Sidebar */}
       <div className={`lg:hidden fixed inset-0 z-[110] transition-all duration-300 ${mobileMenuOpen ? 'visible' : 'invisible'}`}>
         <div 
           className={`absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
