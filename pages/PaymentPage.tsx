@@ -13,20 +13,17 @@ const PaymentPage: React.FC = () => {
 
 const initiatePayment = () => {
   setIsProcessing(true);
-  const internshipId = id; 
+  const internshipId = id || "1"; 
   const orderId = `ORD_${internshipId}_${Date.now()}`;
   
-  // Security: Store it as pending before going to Cashfree
-  localStorage.setItem('pending_order_id', orderId);
+  // SUCCESS REDIRECT KE LIYE TOKEN SAVE KARNA
+  localStorage.setItem('active_payment_token', orderId);
 
   const returnUrl = encodeURIComponent(`https://internadda-com-tau.vercel.app/#/payment-success`);
   
-  window.location.href = `https://payments.cashfree.com/forms/internadda?order_id=${orderId}&return_url=${returnUrl}`;
-};
   // Same Window redirect
   window.location.href = `https://payments.cashfree.com/forms/internadda?order_id=${orderId}&return_url=${returnUrl}`;
 };
-
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-[32px] shadow-2xl p-8 text-center border border-slate-100">
