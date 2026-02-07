@@ -9,16 +9,20 @@ const PaymentPage: React.FC = () => {
   const internship = MOCK_INTERNSHIPS.find(i => i.id === id) || MOCK_INTERNSHIPS[0];
   const [isProcessing, setIsProcessing] = useState(false);
 
+// PaymentPage.tsx ke andar initiatePayment function ko aise update karein:
+
 const initiatePayment = () => {
   setIsProcessing(true);
-  // Hum internship id aur current timestamp ko mix karke ek unique orderId bana rahe hain
   const internshipId = id; 
-  const securityToken = Date.now();
-  const orderId = `ORD_${internshipId}_${securityToken}`;
+  const orderId = `ORD_${internshipId}_${Date.now()}`;
   
-  // Vercel par hash router use ho raha hai isliye URL ko clean rakhenge
+  // Security: Store it as pending before going to Cashfree
+  localStorage.setItem('pending_order_id', orderId);
+
   const returnUrl = encodeURIComponent(`https://internadda-com-tau.vercel.app/#/payment-success`);
   
+  window.location.href = `https://payments.cashfree.com/forms/internadda?order_id=${orderId}&return_url=${returnUrl}`;
+};
   // Same Window redirect
   window.location.href = `https://payments.cashfree.com/forms/internadda?order_id=${orderId}&return_url=${returnUrl}`;
 };
