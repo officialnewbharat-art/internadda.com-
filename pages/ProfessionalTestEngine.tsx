@@ -14,13 +14,14 @@ const ProfessionalTestEngine: React.FC = () => {
       const paymentData = localStorage.getItem(`payment_${id}`);
       
       if (!paymentData) {
-        // Prevent direct URL access bypass
+        // Prevent direct URL access bypass - Redirect to payment
         navigate(`/payment/${id}`, { replace: true });
         return;
       }
 
       try {
         const data = JSON.parse(paymentData);
+        // Only allow entry if payment status is explicitly 'success'
         if (data.status === 'success') {
           setPaymentVerified(true);
         } else {
@@ -33,7 +34,7 @@ const ProfessionalTestEngine: React.FC = () => {
       setLoading(false);
     };
 
-    // 500ms delay to ensure localStorage is ready after browser redirection
+    // Small delay to ensure localStorage is hydrated and prevent race conditions
     const timer = setTimeout(verifyAccess, 500);
     return () => clearTimeout(timer);
   }, [id, navigate]);
@@ -100,8 +101,8 @@ const ProfessionalTestEngine: React.FC = () => {
     setScore(finalScore);
     setIsSubmitted(true);
     
-    // Cleanup temporary security token after successful submission
-    localStorage.removeItem('last_active_order');
+    // Clear the specific payment token to prevent re-entry after submission
+    // localStorage.removeItem(`payment_${id}`); // Uncomment if you want to lock them out after one attempt
   };
 
   const formatTime = (seconds: number) => {
@@ -110,7 +111,7 @@ const ProfessionalTestEngine: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Verification Screen
+  // Verification Screen (Shows while checking localStorage)
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -166,7 +167,7 @@ const ProfessionalTestEngine: React.FC = () => {
       {/* Locked Header */}
       <div className="bg-[#1e293b] border-b border-slate-800 px-8 py-5 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-4">
-          <div className="bg-indigo-600 px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter">Verified Session</div>
+          <div className="bg-indigo-600 px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter text-white">Verified Session</div>
           <div>
             <div className="text-sm font-bold">Standard Professional Assessment</div>
             <div className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Anti-Cheat Enabled</div>
@@ -180,7 +181,7 @@ const ProfessionalTestEngine: React.FC = () => {
           </div>
           <button 
             onClick={() => { if(window.confirm('Are you sure you want to submit the test?')) handleSubmit(); }} 
-            className="bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-emerald-900/20"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-emerald-900/20"
           >
             Submit Test
           </button>
@@ -266,7 +267,7 @@ const ProfessionalTestEngine: React.FC = () => {
           <button
             disabled={currentQuestion === questions.length - 1}
             onClick={() => setCurrentQuestion(prev => prev + 1)}
-            className="px-12 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold shadow-xl shadow-indigo-500/20 disabled:opacity-30 disabled:pointer-events-none transition-all"
+            className="px-12 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-xl shadow-indigo-500/20 disabled:opacity-30 disabled:pointer-events-none transition-all"
           >
             {currentQuestion === questions.length - 1 ? 'Finish Section' : 'Next Question →'}
           </button>
