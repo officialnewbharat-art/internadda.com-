@@ -1,21 +1,83 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, Shield, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Clock, Shield, CheckCircle, XCircle, AlertCircle, Lock } from 'lucide-react';
 
 const ProfessionalTestEngine: React.FC = () => {
-  const { id } = useNavigate();
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [paymentVerified, setPaymentVerified] = useState(false);
+  const [loading, setLoading] = useState(true);
   
   // Check if payment was made
   useEffect(() => {
-    const paymentData = localStorage.getItem('lastPayment');
-    if (!paymentData) {
-      alert('Payment required to access this test. Redirecting...');
-      navigate(`/internship/${id}`);
-      return;
-    }
+    const checkPayment = () => {
+      const paymentData = localStorage.getItem(`payment_${id}`);
+      
+      if (paymentData) {
+        const data = JSON.parse(paymentData);
+        if (data.status === 'success') {
+          setPaymentVerified(true);
+        } else {
+          // Redirect to payment page if payment failed or pending
+          alert('Payment not verified. Please complete payment first.');
+          navigate(`/payment/${id}`);
+        }
+      } else {
+        // No payment data found
+        alert('Payment required to access this test.');
+        navigate(`/payment/${id}`);
+      }
+      
+      setLoading(false);
+    };
+
+    checkPayment();
   }, [id, navigate]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Verifying payment status...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!paymentVerified) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden text-center p-8">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-r from-red-100 to-orange-100 rounded-full flex items-center justify-center mb-6">
+              <Lock size={40} className="text-red-600" />
+            </div>
+            
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">Payment Required</h2>
+            
+            <p className="text-slate-600 mb-6">
+              You need to complete payment of ₹199 to access this premium skill assessment.
+            </p>
+            
+            <button
+              onClick={() => navigate(`/payment/${id}`)}
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-bold hover:shadow-lg transition-all"
+            >
+              Go to Payment Page
+            </button>
+            
+            <div className="mt-8 pt-6 border-t border-slate-100">
+              <div className="flex items-center justify-center gap-2 text-sm text-slate-500">
+                <Shield size={14} />
+                <span>100% refund if no interview scheduled</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const questions = [
     { id: '1', text: 'What is the time complexity of binary search?', options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'], correctAnswer: 2 },
     { id: '2', text: 'Which data structure uses LIFO principle?', options: ['Queue', 'Stack', 'Array', 'Linked List'], correctAnswer: 1 },
