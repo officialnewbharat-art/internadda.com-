@@ -1,79 +1,46 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2 } from 'lucide-react';
 
 const PaymentSuccess: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [isVerifying, setIsVerifying] = useState(true);
-  const [isValid, setIsValid] = useState(false);
 
   useEffect(() => {
-    const orderId = searchParams.get('order_id');
-    
-    // 1. SECURITY CHECK: Agar URL me order_id nahi hai, matlab bypass attempt hai
-    if (!orderId) {
-      setIsValid(false);
-      setIsVerifying(false);
-      return;
-    }
+    // 1. Get Internship ID from the last state or URL
+    // Humne PaymentPage me ORD_{id}_{timestamp} format use kiya hai
+    const orderId = searchParams.get('order_id') || "";
+    const internshipId = orderId.split('_')[1] || "1"; // Fallback to 1 if not found
 
-    // 2. VERIFICATION LOGIC
-    // Hum check karenge ki kya ye order_id humne hi generate kiya tha
-    setIsValid(true);
-    setIsVerifying(false);
+    // 2. Set the Success Flag in LocalStorage
+    const successData = {
+      status: 'success',
+      orderId: orderId,
+      timestamp: new Date().toISOString()
+    };
 
-    // 3. SIGNAL SENDING (Only if valid)
-    const keys = Object.keys(localStorage);
-    const internshipKey = keys.find(k => k.startsWith('payment_'));
-    
-    if (internshipKey) {
-      localStorage.setItem(internshipKey, JSON.stringify({ 
-        status: 'success',
-        orderId: orderId,
-        verified: true 
-      }));
-    }
+    localStorage.setItem(`payment_${internshipId}`, JSON.stringify(successData));
+    localStorage.setItem('last_payment_status', 'success');
 
+    // 3. SEEDHA TEST PAR REDIRECT (No Dashboard)
     const timer = setTimeout(() => {
-      navigate('/dashboard');
-    }, 3000);
+      navigate(`/test/real/${internshipId}`);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, [navigate, searchParams]);
 
-  if (isVerifying) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin text-indigo-600" size={40} />
-      </div>
-    );
-  }
-
-  // Agar koi bina payment ke direct link par aaye
-  if (!isValid) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 text-center shadow-xl border border-red-100">
-          <XCircle size={60} className="text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-900">Invalid Access ❌</h2>
-          <p className="text-slate-500 mt-2 mb-6">Direct access to this page is not allowed. Please complete the payment process.</p>
-          <button onClick={() => navigate('/internships')} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold">
-            Back to Internships
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-[40px] shadow-2xl p-10 text-center">
-        <div className="w-20 h-20 mx-auto bg-emerald-100 rounded-full flex items-center justify-center mb-6">
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle size={40} className="text-emerald-600" />
         </div>
-        <h2 className="text-2xl font-bold">Payment Verified ✅</h2>
-        <p className="text-slate-500 mt-2">Unlocking your assessment...</p>
+        <h2 className="text-2xl font-bold text-slate-900">Payment Verified! ✅</h2>
+        <p className="text-slate-500 mt-2">Opening your skill assessment...</p>
+        <div className="mt-6">
+           <Loader2 className="animate-spin text-indigo-600 mx-auto" size={32} />
+        </div>
       </div>
     </div>
   );
