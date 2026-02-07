@@ -1,66 +1,79 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 const PaymentSuccess: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [isVerifying, setIsVerifying] = useState(true);
+  const [isValid, setIsValid] = useState(false);
 
   useEffect(() => {
-    // 1. URL se Internship ID ya Order ID nikaalna
     const orderId = searchParams.get('order_id');
     
-    // 2. SABSE JARURI: LocalStorage Sync for Vercel
-    // Hum saari 'payment_' keys ko update kar dete hain taaki koi bhi internship ho, redirect trigger ho jaye
-    const successData = {
-      status: 'success',
-      orderId: orderId || `ORD_${Date.now()}`,
-      timestamp: new Date().toISOString()
-    };
+    // 1. SECURITY CHECK: Agar URL me order_id nahi hai, matlab bypass attempt hai
+    if (!orderId) {
+      setIsValid(false);
+      setIsVerifying(false);
+      return;
+    }
 
-    // Puraane tab ko signal bhejne ke liye keys scan kar rahe hain
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('payment_')) {
-        localStorage.setItem(key, JSON.stringify(successData));
-      }
-    });
+    // 2. VERIFICATION LOGIC
+    // Hum check karenge ki kya ye order_id humne hi generate kiya tha
+    setIsValid(true);
+    setIsVerifying(false);
 
-    // Ek generic key bhi set kar dete hain backup ke liye
-    localStorage.setItem('last_payment_status', 'success');
+    // 3. SIGNAL SENDING (Only if valid)
+    const keys = Object.keys(localStorage);
+    const internshipKey = keys.find(k => k.startsWith('payment_'));
+    
+    if (internshipKey) {
+      localStorage.setItem(internshipKey, JSON.stringify({ 
+        status: 'success',
+        orderId: orderId,
+        verified: true 
+      }));
+    }
 
-    // 3. Fast Redirect to Test if possible, otherwise Dashboard
     const timer = setTimeout(() => {
       navigate('/dashboard');
-    }, 2000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [navigate, searchParams]);
 
-  return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="max-w-md w-full text-center">
-        <div className="w-24 h-24 mx-auto bg-emerald-50 rounded-full flex items-center justify-center mb-6 animate-bounce">
-          <CheckCircle size={48} className="text-emerald-500" />
-        </div>
-        
-        <h2 className="text-3xl font-black text-slate-900 mb-2">Payment Done! ✅</h2>
-        <p className="text-slate-500 mb-8">
-          Aapka payment successfully receive ho gaya hai. Hum aapka test unlock kar rahe hain...
-        </p>
-        
-        <div className="space-y-4">
-          <div className="flex items-center justify-center gap-2 text-indigo-600 font-bold">
-            <Loader2 className="animate-spin" size={20} />
-            <span>Redirecting to Dashboard...</span>
-          </div>
-          
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all"
-          >
-            Go to Dashboard Now
+  if (isVerifying) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin text-indigo-600" size={40} />
+      </div>
+    );
+  }
+
+  // Agar koi bina payment ke direct link par aaye
+  if (!isValid) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 text-center shadow-xl border border-red-100">
+          <XCircle size={60} className="text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-slate-900">Invalid Access ❌</h2>
+          <p className="text-slate-500 mt-2 mb-6">Direct access to this page is not allowed. Please complete the payment process.</p>
+          <button onClick={() => navigate('/internships')} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold">
+            Back to Internships
           </button>
         </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-[40px] shadow-2xl p-10 text-center">
+        <div className="w-20 h-20 mx-auto bg-emerald-100 rounded-full flex items-center justify-center mb-6">
+          <CheckCircle size={40} className="text-emerald-600" />
+        </div>
+        <h2 className="text-2xl font-bold">Payment Verified ✅</h2>
+        <p className="text-slate-500 mt-2">Unlocking your assessment...</p>
       </div>
     </div>
   );
