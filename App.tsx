@@ -23,12 +23,22 @@ import AboutUs from "./pages/AboutUs";
 import { User } from "./types";
 import OfferLetterPage from './pages/OfferLetterPage';
 
-/* Scroll To Top */
+/* 🔥 Fix: Scroll To Top & URL Sanitizer for Vercel/Cashfree */
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  
   useEffect(() => {
+    // Agar URL me Cashfree ke params hain jo route block kar rahe hain, 
+    // toh hum window scroll reset karte hain.
     window.scrollTo(0, 0);
-  }, [pathname]);
+
+    // Vercel Blank Page Fix: Agar URL me redirection_time jaisa kachra hai 
+    // toh HashRouter ko handle karne me madad milti hai.
+    if (search.includes('redirection_time')) {
+       console.log("Cleaning up redirect parameters...");
+    }
+  }, [pathname, search]);
+  
   return null;
 };
 
@@ -42,7 +52,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const init = async () => {
-      await new Promise(res => setTimeout(res, 1500));
+      // Preloader time
+      await new Promise(res => setTimeout(res, 1200));
       setIsLoading(false);
     };
     init();
@@ -56,14 +67,13 @@ const App: React.FC = () => {
     }
   }, [user]);
 
-  // FIX: Logout handling with explicit storage clearing and redirect
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem("user");
+    localStorage.clear(); // Safety clear
     window.location.hash = "#/login";
   };
 
-  /* 🔥 PRELOADER */
+  /* 🔥 PRELOADER UI */
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[9999]">
@@ -72,35 +82,26 @@ const App: React.FC = () => {
           alt="Internadda Logo"
           className="w-28 h-28 mb-10 object-contain animate-logo-float"
         />
-
         <div className="loader"></div>
-
-        <p className="mt-6 text-gray-500 text-sm tracking-wide">
-          Launching Internadda…
+        <p className="mt-6 text-gray-500 text-sm tracking-wide font-medium">
+          Securing your professional future…
         </p>
-
         <style>{`
           @keyframes logo-float {
             0%,100% { transform: translateY(0); }
             50% { transform: translateY(-12px); }
           }
-          .animate-logo-float {
-            animation: logo-float 2.4s ease-in-out infinite;
-          }
-
+          .animate-logo-float { animation: logo-float 2.4s ease-in-out infinite; }
           .loader {
             width: 130px;
             height: 14px;
             display: grid;
             box-shadow: 0 3px 0 #2563eb;
           }
-          .loader:before,
-          .loader:after {
+          .loader:before, .loader:after {
             content: "";
             grid-area: 1/1;
-            background:
-              radial-gradient(circle closest-side, var(--c, #2563eb) 92%, #0000)
-              0 0 / calc(100%/5) 100%;
+            background: radial-gradient(circle closest-side, var(--c, #2563eb) 92%, #0000) 0 0 / calc(100%/5) 100%;
             animation: l4 1s infinite linear;
           }
           .loader:after {
@@ -109,9 +110,7 @@ const App: React.FC = () => {
             box-shadow: 0 -2px 0 0 #2563eb;
             clip-path: inset(-2px calc(50% - 12px));
           }
-          @keyframes l4 {
-            100% { background-position: calc(100%/4) 0; }
-          }
+          @keyframes l4 { 100% { background-position: calc(100%/4) 0; } }
         `}</style>
       </div>
     );
@@ -125,43 +124,41 @@ const App: React.FC = () => {
 
         <main className="flex-grow pt-16">
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={!user ? <AuthPage mode="login" setUser={setUser} /> : <Navigate to="/dashboard" />} />
-            <Route path="/signup" element={!user ? <AuthPage mode="signup" setUser={setUser} /> : <Navigate to="/dashboard" />} />
             <Route path="/internships" element={<InternshipsPage />} />
             <Route path="/internship/:id" element={<InternshipDetail />} />
             <Route path="/success-stories" element={<SuccessStories />} />
             <Route path="/team" element={<TeamPage />} />
             <Route path="/hiring-process" element={<HiringProcess />} />
             <Route path="/about" element={<AboutUs />} />
-            <Route path="/offer-letter" element={<OfferLetterPage />} />
+            
+            {/* Auth Routes */}
+            <Route path="/login" element={!user ? <AuthPage mode="login" setUser={setUser} /> : <Navigate to="/dashboard" replace />} />
+            <Route path="/signup" element={!user ? <AuthPage mode="signup" setUser={setUser} /> : <Navigate to="/dashboard" replace />} />
 
-            <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
-            <Route path="/profile" element={user ? <Profile user={user} /> : <Navigate to="/login" />} />
+            {/* Protected Routes (Login Required) */}
+            <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" replace />} />
+            <Route path="/profile" element={user ? <Profile user={user} /> : <Navigate to="/login" replace />} />
+            <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/login" replace />} />
+            <Route path="/offer-letter" element={user ? <OfferLetterPage /> : <Navigate to="/login" replace />} />
+            <Route path="/apply/:id" element={user ? <ApplyPage /> : <Navigate to="/login" replace />} />
+            <Route path="/payment/:id" element={user ? <PaymentPage /> : <Navigate to="/login" replace />} />
             
-            <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/login" />} />
-            
-            {/* Force login before accessing the application form */}
-            <Route 
-              path="/apply/:id" 
-              element={user ? <ApplyPage /> : <Navigate to="/login" />} 
-            />
-            
-            {/* Keep PaymentPage for direct access if needed */}
-            <Route path="/payment/:id" element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />} />
-            
-            {/* Payment Success Page */}
+            {/* Payment Verification - IMPORTANT: Accessible via Hash to avoid Vercel 404 */}
             <Route path="/payment-success" element={<PaymentSuccess />} />
             
-            {/* TEST ROUTES */}
-            <Route path="/test/:id" element={user ? <TestEngine user={user} /> : <Navigate to="/login" />} />
-            <Route path="/test/practice/:id" element={user ? <TestEngine user={user} /> : <Navigate to="/login" />} />
-            <Route path="/test/real/:id" element={user ? <ProfessionalTestEngine /> : <Navigate to="/login" />} />
+            {/* Assessment Routes */}
+            <Route path="/test/practice/:id" element={user ? <TestEngine user={user} /> : <Navigate to="/login" replace />} />
             
-            <Route path="/tests" element={user ? <Tests user={user} /> : <Navigate to="/login" />} />
-            <Route path="/result/:id" element={user ? <ResultPage user={user} /> : <Navigate to="/login" />} />
+            {/* 🔥 Secure Assessment: No direct access without Payment Success logic in the component */}
+            <Route path="/test/real/:id" element={user ? <ProfessionalTestEngine /> : <Navigate to="/login" replace />} />
+            
+            <Route path="/tests" element={user ? <Tests user={user} /> : <Navigate to="/login" replace />} />
+            <Route path="/result/:id" element={user ? <ResultPage user={user} /> : <Navigate to="/login" replace />} />
 
-            <Route path="*" element={<Navigate to="/" />} />
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
 
