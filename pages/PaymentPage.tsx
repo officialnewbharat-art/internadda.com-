@@ -18,9 +18,9 @@ const PaymentPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentVerified, setPaymentVerified] = useState(false);
 
-  // Check if payment was already made
+  // 1. Check existing payment and LISTEN for changes from other tabs/windows
   useEffect(() => {
-    const checkExistingPayment = () => {
+    const checkPayment = () => {
       const paymentData = localStorage.getItem(`payment_${id}`);
       if (paymentData) {
         const data = JSON.parse(paymentData);
@@ -31,111 +31,82 @@ const PaymentPage: React.FC = () => {
       }
     };
 
-    checkExistingPayment();
+    // Check on mount
+    checkPayment();
+
+    // Listener for cross-tab updates (important for Cashfree redirects)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === `payment_${id}`) {
+        checkPayment();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [id]);
 
-  // Function to handle payment success (to be called from Cashfree callback)
-  const handlePaymentSuccess = (orderData: any) => {
-    setIsProcessing(false);
-    
-    // Save payment data to localStorage
-    const paymentData = {
-      status: 'success',
-      orderId: orderData.orderId,
-      transactionId: orderData.referenceId,
-      amount: orderData.orderAmount,
-      timestamp: new Date().toISOString(),
-      internshipId: id
-    };
-    
-    localStorage.setItem(`payment_${id}`, JSON.stringify(paymentData));
-    localStorage.setItem('lastPayment', JSON.stringify(paymentData));
-    
-    setPaymentStatus({ status: 'success', ...paymentData });
-    setPaymentVerified(true);
-    
-    // Show success message and redirect to test
-    setTimeout(() => {
-      navigate(`/test/real/${id}`);
-    }, 2000);
-  };
-
-  // Function to verify payment (simulate Cashfree verification)
-  const verifyPayment = async (orderId: string) => {
-    try {
-      // In real app, this would be an API call to your backend to verify with Cashfree
-      // For demo, simulate successful verification after 2 seconds
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      return { verified: true, orderId, referenceId: `TXN_${Date.now()}` };
-    } catch (error) {
-      return { verified: false };
+  // 2. Redirect automatically when verified
+  useEffect(() => {
+    if (paymentVerified) {
+      const timer = setTimeout(() => {
+        navigate(`/test/real/${id}`);
+      }, 2000);
+      return () => clearTimeout(timer);
     }
+  }, [paymentVerified, id, navigate]);
+
+  const handlePaymentSuccess = (data: any) => {
+    setIsProcessing(false);
+    setPaymentStatus({ status: 'success', ...data });
+    setPaymentVerified(true);
   };
 
-  // Function to start payment process
   const initiatePayment = async () => {
     setIsProcessing(true);
     
     try {
-      // Generate order ID
-      const orderId = `ORD_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const orderId = `ORD_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+      const paymentUrl = `https://payments.cashfree.com/forms/internadda?order_id=${orderId}&order_amount=199`;
       
-      // In real app, create order on your backend first
-      // For demo, we'll simulate
-      
-      // Open Cashfree payment in new window/tab
-      const paymentWindow = window.open(
-        `https://payments.cashfree.com/forms/internadda?order_id=${orderId}&order_amount=199`,
-        'CashfreePayment',
-        'width=500,height=700'
-      );
+      const paymentWindow = window.open(paymentUrl, 'CashfreePayment', 'width=500,height=700');
       
       if (!paymentWindow) {
         alert('Please allow popups to continue with payment');
         setIsProcessing(false);
         return;
       }
-      
-      // Listen for payment completion (in real app, use webhooks)
-      const checkPaymentInterval = setInterval(async () => {
-        try {
-          // In real app, poll your backend for payment status
-          // For demo, check localStorage for payment status
-          const paymentData = localStorage.getItem(`payment_${id}`);
-          
-          if (paymentData) {
-            const data = JSON.parse(paymentData);
-            if (data.status === 'success') {
-              clearInterval(checkPaymentInterval);
-              handlePaymentSuccess(data);
-            }
+
+      // LIVE TRACKING LOOP
+      const checkPaymentInterval = setInterval(() => {
+        // A. Check if success data was written to storage by the payment flow
+        const paymentData = localStorage.getItem(`payment_${id}`);
+        if (paymentData) {
+          const data = JSON.parse(paymentData);
+          if (data.status === 'success') {
+            clearInterval(checkPaymentInterval);
+            handlePaymentSuccess(data);
           }
-        } catch (error) {
-          console.error('Payment check error:', error);
         }
-      }, 2000);
-      
-      // Cleanup interval after 5 minutes
-      setTimeout(() => {
-        clearInterval(checkPaymentInterval);
-        if (!paymentVerified) {
+
+        // B. If window is closed manually by user without success
+        if (paymentWindow.closed && !paymentVerified) {
+          clearInterval(checkPaymentInterval);
           setIsProcessing(false);
         }
-      }, 300000);
+      }, 1500);
+
+      // Timeout after 10 minutes
+      setTimeout(() => clearInterval(checkPaymentInterval), 600000);
       
     } catch (error) {
-      console.error('Payment initiation error:', error);
+      console.error('Payment error:', error);
       setIsProcessing(false);
       alert('Payment initiation failed. Please try again.');
     }
   };
 
   const handleStartTest = () => {
-    if (paymentVerified) {
-      navigate(`/test/real/${id}`);
-    } else {
-      alert('Please complete payment first.');
-    }
+    navigate(`/test/real/${id}`);
   };
 
   if (paymentVerified) {
@@ -146,33 +117,20 @@ const PaymentPage: React.FC = () => {
             <div className="w-20 h-20 mx-auto bg-gradient-to-r from-emerald-100 to-green-100 rounded-full flex items-center justify-center mb-6">
               <CheckCircle size={40} className="text-emerald-600" />
             </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Payment Successful! ✅</h2>
+            <p className="text-slate-500 mb-6">Redirecting you to the assessment...</p>
             
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">Payment Verified ✅</h2>
-            
-            <div className="bg-slate-50 rounded-xl p-4 mb-6">
-              <p className="text-slate-600 mb-2">
-                Payment of <span className="font-bold">₹199</span> for <span className="font-bold">{internship.title}</span> has been confirmed.
-              </p>
-              <p className="text-sm text-slate-500">
-                Order ID: {paymentStatus.orderId}
-              </p>
+            <div className="bg-slate-50 rounded-xl p-4 mb-6 text-left">
+              <p className="text-sm font-bold text-slate-700">{internship.title}</p>
+              <p className="text-xs text-slate-500 mt-1">Order ID: {paymentStatus.orderId}</p>
             </div>
             
-            <div className="space-y-3">
-              <button
-                onClick={handleStartTest}
-                className="w-full bg-gradient-to-r from-emerald-600 to-green-600 text-white font-bold py-3.5 rounded-xl hover:shadow-lg transition-all"
-              >
-                🚀 Start Skill Assessment
-              </button>
-              
-              <button
-                onClick={() => navigate(`/internship/${id}`)}
-                className="w-full border-2 border-slate-300 text-slate-700 py-3.5 rounded-xl font-bold hover:bg-slate-50 transition-all"
-              >
-                View Internship Details
-              </button>
-            </div>
+            <button
+              onClick={handleStartTest}
+              className="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 transition-all"
+            >
+              Start Assessment Now
+            </button>
           </div>
         </div>
       </div>
@@ -183,29 +141,26 @@ const PaymentPage: React.FC = () => {
     <div className="min-h-screen bg-slate-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-[40px] shadow-2xl border border-slate-100 overflow-hidden">
-          {/* Trust Banner */}
           <div className="bg-indigo-600 p-4 text-center text-white text-sm font-bold flex items-center justify-center gap-2">
-            <ShieldCheck size={18} /> Verified Professional Internship Assessment
+            <ShieldCheck size={18} /> Secure Professional Payment Gateway
           </div>
 
           <div className="p-8 md:p-12 grid md:grid-cols-2 gap-12">
-            {/* Motivational Side */}
             <div className="space-y-8">
               <div>
                 <h1 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">
-                  Invest in Your Future. 🚀
+                  Unlock Your Internship. 🚀
                 </h1>
                 <p className="text-slate-500 leading-relaxed">
-                  You are one step away from securing your internship at <strong>{internship.company}</strong>. 
-                  Our ₹199 processing fee ensures only serious candidates enter the direct interview pipeline.
+                  Join <strong>{internship.company}</strong>. Our processing fee covers the MSME certification and direct interview scheduling.
                 </p>
               </div>
 
               <div className="space-y-4">
                 {[
-                  { icon: <Award className="text-indigo-600" />, text: "Government Recognized MSME Certificate" },
-                  { icon: <CheckCircle className="text-indigo-600" />, text: "Guaranteed Interview Within 48 Hours" },
-                  { icon: <Lock className="text-indigo-600" />, text: "100% Refund if No Interview Scheduled" }
+                  { icon: <Award className="text-indigo-600" />, text: "Verified MSME Certificate" },
+                  { icon: <CheckCircle className="text-indigo-600" />, text: "Direct Interview Slot" },
+                  { icon: <Lock className="text-indigo-600" />, text: "100% Secure Transaction" }
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
                     {item.icon}
@@ -215,29 +170,23 @@ const PaymentPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Payment Side */}
             <div className="bg-slate-50 rounded-[30px] p-8 border border-slate-200 flex flex-col items-center justify-center text-center">
               <div className="mb-8">
-                <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Payable</span>
+                <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">Amount to Pay</span>
                 <div className="text-5xl font-black text-slate-900 mt-2">₹199</div>
-                <p className="text-indigo-600 font-bold text-xs mt-2 italic">Legal & Secure Processing</p>
               </div>
 
               {isProcessing ? (
                 <div className="w-full flex flex-col items-center">
                   <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
-                  <p className="text-slate-600 font-medium">Processing payment...</p>
-                  <p className="text-sm text-slate-500 mt-2">
-                    Please complete payment in the new window
-                  </p>
+                  <p className="text-slate-900 font-bold">Waiting for Payment...</p>
+                  <p className="text-sm text-slate-500 mt-2">Complete the transaction in the opened window</p>
                 </div>
               ) : (
-                <>
-                  {/* Cashfree Payment Button */}
+                <div className="w-full space-y-4">
                   <button
                     onClick={initiatePayment}
-                    className="w-full bg-[#41478a] hover:bg-[#353b75] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-all mb-4"
-                    disabled={isProcessing}
+                    className="w-full bg-[#41478a] hover:bg-[#353b75] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 transition-all"
                   >
                     <img 
                       src="https://cashfreelogo.cashfree.com/cashfreepayments/logosvgs/Group_4355.svg" 
@@ -245,43 +194,17 @@ const PaymentPage: React.FC = () => {
                       className="w-8 h-8"
                     />
                     <div className="text-left">
-                      <div className="text-lg font-bold">Pay ₹199 Now</div>
-                      <div className="text-xs opacity-90">Powered by Cashfree</div>
+                      <div className="text-lg">Pay ₹199 Now</div>
+                      <div className="text-[10px] opacity-80 uppercase tracking-tighter">Secure via Cashfree</div>
                     </div>
                   </button>
-
-                  <p className="text-[10px] text-slate-400 mt-6 leading-relaxed">
-                    By clicking pay, you agree to our terms. Your test credentials will be unlocked immediately after successful payment.
-                  </p>
-                </>
-              )}
-
-              {/* Alternative Payment Methods */}
-              {!isProcessing && (
-                <div className="mt-6 w-full">
-                  <p className="text-xs text-slate-500 mb-3">Or pay with:</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    <button
-                      onClick={initiatePayment}
-                      className="p-3 bg-white border border-slate-300 rounded-lg hover:border-indigo-400 hover:shadow-sm transition-all"
-                    >
-                      <div className="text-2xl mb-1">💳</div>
-                      <div className="text-xs font-medium text-slate-700">Card</div>
-                    </button>
-                    <button
-                      onClick={initiatePayment}
-                      className="p-3 bg-white border border-slate-300 rounded-lg hover:border-indigo-400 hover:shadow-sm transition-all"
-                    >
-                      <div className="text-2xl mb-1">🏦</div>
-                      <div className="text-xs font-medium text-slate-700">UPI</div>
-                    </button>
-                    <button
-                      onClick={initiatePayment}
-                      className="p-3 bg-white border border-slate-300 rounded-lg hover:border-indigo-400 hover:shadow-sm transition-all"
-                    >
-                      <div className="text-2xl mb-1">📱</div>
-                      <div className="text-xs font-medium text-slate-700">Wallet</div>
-                    </button>
+                  
+                  <div className="grid grid-cols-3 gap-2 opacity-60">
+                    {['UPI', 'Card', 'Wallet'].map(m => (
+                      <div key={m} className="text-[10px] font-bold py-1 border border-slate-300 rounded text-slate-500">
+                        {m}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
