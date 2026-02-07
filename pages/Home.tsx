@@ -44,8 +44,8 @@ const Home: React.FC = () => {
 
   const students = [
     { name: "Ravi", img: "https://iili.io/fmKACQa.md.jpg" },
-    { name: "Priya", img: "https://iili.io/fmK7k6G.md.jpg" },
-    { name: "Amit", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100&auto=format&fit=crop" },
+    { name: "Priya", img: "https://iili.io/fmKMLV2.md.jpg" },
+    { name: "Amit", img: "https://iili.io/fmKMQPS.jpg" },
     { name: "Neha", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop" }
   ];
 
