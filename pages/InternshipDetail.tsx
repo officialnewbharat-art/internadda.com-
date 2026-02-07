@@ -434,13 +434,19 @@ const InternshipDetail: React.FC = () => {
     return checkExistingPayment();
   };
 
-  const handleApplyClick = () => {
-    if (hasPaidForInternship()) {
-      navigate(`/test/real/${id}`);
-    } else {
-      handlePaymentClick();
-    }
-  };
+
+const handleApplyClick = () => {
+  const existingPayment = localStorage.getItem(`payment_${id}`);
+  const paymentData = existingPayment ? JSON.parse(existingPayment) : null;
+
+  if (paymentData && paymentData.status === 'success') {
+    // If already paid, go straight to the real test
+    navigate(`/test/real/${id}`);
+  } else {
+    // Otherwise, go to payment page to initiate
+    navigate(`/payment/${id}`);
+  }
+};
 
   return (
     <>
