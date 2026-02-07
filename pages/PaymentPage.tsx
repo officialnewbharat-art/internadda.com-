@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircle, Loader2, ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Loader2, Lock } from 'lucide-react';
 import { MOCK_INTERNSHIPS } from '../constants';
 
 const PaymentPage: React.FC = () => {
@@ -8,79 +8,44 @@ const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
   const internship = MOCK_INTERNSHIPS.find(i => i.id === id) || MOCK_INTERNSHIPS[0];
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentVerified, setPaymentVerified] = useState(false);
-  const checkInterval = useRef<NodeJS.Timeout | null>(null);
-
-  // Cross-tab sync: Jab success page dusre tab me localStorage update karega
-  useEffect(() => {
-    const handleSync = (e: StorageEvent) => {
-      if (e.key === `payment_${id}` && e.newValue && JSON.parse(e.newValue).status === 'success') {
-        triggerSuccess();
-      }
-    };
-    window.addEventListener('storage', handleSync);
-    return () => window.removeEventListener('storage', handleSync);
-  }, [id]);
-
-  const triggerSuccess = () => {
-    if (checkInterval.current) clearInterval(checkInterval.current);
-    setPaymentVerified(true);
-    setIsProcessing(false);
-    setTimeout(() => navigate(`/test/real/${id}`), 1000); // 1 sec fast redirect
-  };
 
   const initiatePayment = () => {
     setIsProcessing(true);
-    const orderId = `ORD_${Date.now()}`;
+    const orderId = `ORD_${id}_${Date.now()}`;
+    
+    // Yahan hum same window me open kar rahe hain
     const paymentUrl = `https://payments.cashfree.com/forms/internadda?order_id=${orderId}`;
-    const paymentWindow = window.open(paymentUrl, 'CashfreePayment', 'width=500,height=720');
-
-    if (!paymentWindow) {
-      alert('Please allow popups!');
-      setIsProcessing(false);
-      return;
-    }
-
-    // Fast Polling: Cashfree ki response URL track karne ke liye
-    checkInterval.current = setInterval(() => {
-      const stored = localStorage.getItem(`payment_${id}`);
-      if (stored && JSON.parse(stored).status === 'success') {
-        triggerSuccess();
-      }
-      if (paymentWindow.closed && !paymentVerified) {
-        clearInterval(checkInterval.current!);
-        setIsProcessing(false);
-      }
-    }, 800);
+    
+    // IMPORTANT: Same tab me kholne ke liye
+    window.location.href = paymentUrl;
   };
-
-  if (paymentVerified) return (
-    <div className="min-h-screen bg-white flex items-center justify-center text-center">
-      <div>
-        <CheckCircle size={60} className="text-emerald-500 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold">Payment Successful! ✅</h2>
-        <p className="text-slate-500">Redirecting to Test...</p>
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-[32px] shadow-2xl p-8 text-center border border-slate-100">
-        <h1 className="text-xl font-bold mb-6">Complete Payment</h1>
-        <div className="bg-slate-50 rounded-2xl py-6 mb-6">
-          <p className="text-xs text-slate-400 font-bold uppercase">Payable Amount</p>
-          <div className="text-5xl font-black text-slate-900">₹10</div> 
+        <h1 className="text-2xl font-black text-slate-900 mb-2">Final Step</h1>
+        <p className="text-slate-500 mb-6">Unlock assessment for {internship.title}</p>
+        
+        <div className="bg-indigo-50 rounded-2xl py-8 mb-8">
+          <div className="text-5xl font-black text-slate-900">₹10</div>
+          <p className="text-xs text-indigo-600 font-bold mt-2 uppercase tracking-widest">Secure Payment</p>
         </div>
-        {isProcessing ? (
-          <div className="py-4"><Loader2 className="animate-spin mx-auto text-indigo-600 mb-2" /> <p>Completing Transaction...</p></div>
-        ) : (
-          <button onClick={initiatePayment} className="w-full bg-[#41478a] text-white font-bold py-4 rounded-xl active:scale-95 transition-all">
-            Pay Now
-          </button>
-        )}
+
+        <button
+          onClick={initiatePayment}
+          disabled={isProcessing}
+          className="w-full bg-[#41478a] hover:bg-[#353b75] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 transition-all"
+        >
+          {isProcessing ? <Loader2 className="animate-spin" /> : "Pay & Start Test Now"}
+        </button>
+
+        <div className="mt-6 flex items-center justify-center gap-4 opacity-50">
+          <ShieldCheck size={16} /> <Lock size={16} />
+          <span className="text-[10px] font-bold">PCI DSS COMPLIANT</span>
+        </div>
       </div>
     </div>
   );
 };
+
 export default PaymentPage;
