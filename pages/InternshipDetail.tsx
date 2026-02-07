@@ -1,5 +1,3 @@
-[file name]: InternshipDetail.tsx
-[file content begin]
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MOCK_INTERNSHIPS } from '../constants';
@@ -322,4 +320,3 @@ const InternshipDetail: React.FC = () => {
 };
 
 export default InternshipDetail;
-[file content end]
