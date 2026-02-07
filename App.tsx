@@ -6,7 +6,6 @@ import Home from "./pages/Home";
 import InternshipsPage from "./pages/InternshipsPage";
 import InternshipDetail from "./pages/InternshipDetail";
 import AuthPage from "./pages/AuthPage";
-import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import ApplyPage from "./pages/ApplyPage";
@@ -23,22 +22,11 @@ import AboutUs from "./pages/AboutUs";
 import { User } from "./types";
 import OfferLetterPage from './pages/OfferLetterPage';
 
-/* 🔥 Fix: Scroll To Top & URL Sanitizer for Vercel/Cashfree */
 const ScrollToTop = () => {
   const { pathname, search } = useLocation();
-  
   useEffect(() => {
-    // Agar URL me Cashfree ke params hain jo route block kar rahe hain, 
-    // toh hum window scroll reset karte hain.
     window.scrollTo(0, 0);
-
-    // Vercel Blank Page Fix: Agar URL me redirection_time jaisa kachra hai 
-    // toh HashRouter ko handle karne me madad milti hai.
-    if (search.includes('redirection_time')) {
-       console.log("Cleaning up redirect parameters...");
-    }
   }, [pathname, search]);
-  
   return null;
 };
 
@@ -52,7 +40,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const init = async () => {
-      // Preloader time
       await new Promise(res => setTimeout(res, 1200));
       setIsLoading(false);
     };
@@ -69,11 +56,10 @@ const App: React.FC = () => {
 
   const handleLogout = () => {
     setUser(null);
-    localStorage.clear(); // Safety clear
+    localStorage.clear();
     window.location.hash = "#/login";
   };
 
-  /* 🔥 PRELOADER UI */
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[9999]">
@@ -124,7 +110,6 @@ const App: React.FC = () => {
 
         <main className="flex-grow pt-16">
           <Routes>
-            {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/internships" element={<InternshipsPage />} />
             <Route path="/internship/:id" element={<InternshipDetail />} />
@@ -133,27 +118,19 @@ const App: React.FC = () => {
             <Route path="/hiring-process" element={<HiringProcess />} />
             <Route path="/about" element={<AboutUs />} />
             
-            {/* Auth Routes */}
-            <Route path="/login" element={!user ? <AuthPage mode="login" setUser={setUser} /> : <Navigate to="/dashboard" replace />} />
-            <Route path="/signup" element={!user ? <AuthPage mode="signup" setUser={setUser} /> : <Navigate to="/dashboard" replace />} />
+            {/* Auth Routes - Redirect to /profile instead of /dashboard */}
+            <Route path="/login" element={!user ? <AuthPage mode="login" setUser={setUser} /> : <Navigate to="/profile" replace />} />
+            <Route path="/signup" element={!user ? <AuthPage mode="signup" setUser={setUser} /> : <Navigate to="/profile" replace />} />
 
-            {/* Protected Routes (Login Required) */}
-            <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" replace />} />
+            {/* Protected Routes */}
             <Route path="/profile" element={user ? <Profile user={user} /> : <Navigate to="/login" replace />} />
             <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/login" replace />} />
             <Route path="/offer-letter" element={user ? <OfferLetterPage /> : <Navigate to="/login" replace />} />
             <Route path="/apply/:id" element={user ? <ApplyPage /> : <Navigate to="/login" replace />} />
             <Route path="/payment/:id" element={user ? <PaymentPage /> : <Navigate to="/login" replace />} />
-            
-            {/* Payment Verification - IMPORTANT: Accessible via Hash to avoid Vercel 404 */}
             <Route path="/payment-success" element={<PaymentSuccess />} />
-            
-            {/* Assessment Routes */}
             <Route path="/test/practice/:id" element={user ? <TestEngine user={user} /> : <Navigate to="/login" replace />} />
-            
-            {/* 🔥 Secure Assessment: No direct access without Payment Success logic in the component */}
             <Route path="/test/real/:id" element={user ? <ProfessionalTestEngine /> : <Navigate to="/login" replace />} />
-            
             <Route path="/tests" element={user ? <Tests user={user} /> : <Navigate to="/login" replace />} />
             <Route path="/result/:id" element={user ? <ResultPage user={user} /> : <Navigate to="/login" replace />} />
 
@@ -161,7 +138,6 @@ const App: React.FC = () => {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
-
         <Footer />
       </div>
     </Router>
