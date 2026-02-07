@@ -9,16 +9,19 @@ const PaymentPage: React.FC = () => {
   const internship = MOCK_INTERNSHIPS.find(i => i.id === id) || MOCK_INTERNSHIPS[0];
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const initiatePayment = () => {
-    setIsProcessing(true);
-    const orderId = `ORD_${id}_${Date.now()}`;
-    
-    // Yahan hum same window me open kar rahe hain
-    const paymentUrl = `https://payments.cashfree.com/forms/internadda?order_id=${orderId}`;
-    
-    // IMPORTANT: Same tab me kholne ke liye
-    window.location.href = paymentUrl;
-  };
+const initiatePayment = () => {
+  setIsProcessing(true);
+  // Hum internship id aur current timestamp ko mix karke ek unique orderId bana rahe hain
+  const internshipId = id; 
+  const securityToken = Date.now();
+  const orderId = `ORD_${internshipId}_${securityToken}`;
+  
+  // Vercel par hash router use ho raha hai isliye URL ko clean rakhenge
+  const returnUrl = encodeURIComponent(`https://internadda-com-tau.vercel.app/#/payment-success`);
+  
+  // Same Window redirect
+  window.location.href = `https://payments.cashfree.com/forms/internadda?order_id=${orderId}&return_url=${returnUrl}`;
+};
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
