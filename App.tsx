@@ -9,6 +9,8 @@ import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import ApplyPage from "./pages/ApplyPage";
+import PaymentPage from "./pages/PaymentPage";
 import TestEngine from "./pages/TestEngine";
 import ProfessionalTestEngine from "./pages/ProfessionalTestEngine";
 import Tests from "./pages/Tests";
@@ -54,6 +56,7 @@ const App: React.FC = () => {
     }
   }, [user]);
 
+  // FIX: Logout handling with explicit storage clearing and redirect
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("user");
@@ -135,18 +138,28 @@ const App: React.FC = () => {
 
             <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
             <Route path="/profile" element={user ? <Profile user={user} /> : <Navigate to="/login" />} />
+            
             <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/login" />} />
             
-            {/* Payment Flow */}
+            {/* Force login before accessing the application form */}
+            <Route 
+              path="/apply/:id" 
+              element={user ? <ApplyPage /> : <Navigate to="/login" />} 
+            />
+            
+            {/* Keep PaymentPage for direct access if needed */}
+            <Route path="/payment/:id" element={user ? <PaymentPage user={user} /> : <Navigate to="/login" />} />
+            
+            {/* Payment Success Page */}
             <Route path="/payment-success" element={<PaymentSuccess />} />
             
-            {/* Test Routes */}
-            <Route path="/test/:id" element={user ? <TestEngine /> : <Navigate to="/login" />} />
-            <Route path="/test/practice/:id" element={user ? <TestEngine /> : <Navigate to="/login" />} />
+            {/* TEST ROUTES */}
+            <Route path="/test/:id" element={user ? <TestEngine user={user} /> : <Navigate to="/login" />} />
+            <Route path="/test/practice/:id" element={user ? <TestEngine user={user} /> : <Navigate to="/login" />} />
             <Route path="/test/real/:id" element={user ? <ProfessionalTestEngine /> : <Navigate to="/login" />} />
             
-            <Route path="/tests" element={user ? <Tests /> : <Navigate to="/login" />} />
-            <Route path="/result/:id" element={user ? <ResultPage /> : <Navigate to="/login" />} />
+            <Route path="/tests" element={user ? <Tests user={user} /> : <Navigate to="/login" />} />
+            <Route path="/result/:id" element={user ? <ResultPage user={user} /> : <Navigate to="/login" />} />
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
