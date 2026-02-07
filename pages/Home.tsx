@@ -43,8 +43,8 @@ const Home: React.FC = () => {
     : MOCK_INTERNSHIPS.filter(i => i.category === selectedCategory);
 
   const students = [
-    { name: "Rahul", img: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=100&auto=format&fit=crop" },
-    { name: "Priya", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop" },
+    { name: "Ravi", img: "https://iili.io/fmKACQa.md.jpg" },
+    { name: "Priya", img: "https://iili.io/fmK7k6G.md.jpg" },
     { name: "Amit", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100&auto=format&fit=crop" },
     { name: "Neha", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop" }
   ];
