@@ -1,51 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, Shield, CheckCircle, XCircle, AlertCircle, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { Clock, CheckCircle, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
 
 const ProfessionalTestEngine: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [paymentVerified, setPaymentVerified] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 1. STRICT GATEKEEPER & REDIRECTION LOGIC
+  // 1. GATEKEEPER: Direct Access Block Logic
   useEffect(() => {
-    const checkGatekeeper = () => {
-      // Check if payment exists for this specific ID
+    const verifyGatekeeper = () => {
+      // Step A: Check if payment record exists
       const paymentData = localStorage.getItem(`payment_${id}`);
-      
-      // Additional layer: Check if the user came from the success/payment flow
-      // Yeh direct URL copy-paste ko prevent karega
-      const sessionActive = sessionStorage.getItem(`test_session_${id}`);
+      // Step B: Check for the Secure Access Token we generated in PaymentSuccess
+      const accessToken = localStorage.getItem(`test_access_token_${id}`);
 
-      if (!paymentData) {
-        // No payment record found - strict block
+      if (!paymentData || !accessToken) {
+        // Agar dono mein se ek bhi missing hai -> Direct Access Attempted
+        console.error("Access Denied: No valid session found.");
         navigate(`/payment/${id}`, { replace: true });
         return;
       }
 
       try {
         const data = JSON.parse(paymentData);
-        // Sirf status 'success' hone par aur session active hone par entry milegi
-        if (data.status === 'success' && sessionActive === 'active') {
-          setPaymentVerified(true);
+        if (data.status === 'success') {
+          setIsAuthorized(true);
+          setLoading(false);
         } else {
-          // Redirect if status is not success or session is unauthorized
           navigate(`/payment/${id}`, { replace: true });
         }
       } catch (e) {
         navigate(`/payment/${id}`, { replace: true });
       }
-      
-      setLoading(false);
     };
 
-    // 500ms delay to prevent race conditions during route changes
-    const timer = setTimeout(checkGatekeeper, 500);
+    // Small delay to ensure localStorage sync
+    const timer = setTimeout(verifyGatekeeper, 800);
     return () => clearTimeout(timer);
   }, [id, navigate]);
 
-  // TEST CONTENT
+  // TEST QUESTIONS
   const questions = [
     { id: '1', text: 'What is the time complexity of binary search?', options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'], correctAnswer: 2 },
     { id: '2', text: 'Which data structure uses LIFO principle?', options: ['Queue', 'Stack', 'Array', 'Linked List'], correctAnswer: 1 },
@@ -56,14 +52,14 @@ const ProfessionalTestEngine: React.FC = () => {
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>(Array(questions.length).fill(-1));
-  const [timeLeft, setTimeLeft] = useState(30 * 60); 
+  const [timeLeft, setTimeLeft] = useState(30 * 60);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [warningCount, setWarningCount] = useState(0);
 
-  // TIMER & ANTI-CHEAT LOGIC
+  // ANTI-CHEAT & TIMER
   useEffect(() => {
-    if (!paymentVerified || isSubmitted) return;
+    if (!isAuthorized || isSubmitted) return;
 
     const timer = setInterval(() => {
       setTimeLeft(prev => {
@@ -82,9 +78,9 @@ const ProfessionalTestEngine: React.FC = () => {
           const newCount = prev + 1;
           if (newCount >= 3) {
             handleSubmit();
-            alert('CRITICAL: Test auto-submitted due to security violation.');
+            alert('Security Alert: Test auto-submitted due to tab switching.');
           } else {
-            alert(`WARNING (${newCount}/3): Tab switching is not allowed.`);
+            alert(`Warning (${newCount}/3): Do not leave this page!`);
           }
           return newCount;
         });
@@ -96,53 +92,46 @@ const ProfessionalTestEngine: React.FC = () => {
       clearInterval(timer);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [paymentVerified, isSubmitted]);
+  }, [isAuthorized, isSubmitted]);
 
   const handleSubmit = () => {
     let correct = 0;
     questions.forEach((q, i) => {
       if (answers[i] === q.correctAnswer) correct++;
     });
-    const finalScore = Math.round((correct / questions.length) * 100);
-    setScore(finalScore);
+    setScore(Math.round((correct / questions.length) * 100));
     setIsSubmitted(true);
     
-    // Test khatam hone ke baad session expire kar do taaki re-entry na ho sake
-    sessionStorage.removeItem(`test_session_${id}`);
+    // Test ke baad token delete kar do taaki koi refresh karke dobara test na de sake
+    localStorage.removeItem(`test_access_token_${id}`);
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
-  // Gatekeeper Loading Screen
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
-          <p className="text-slate-600 font-bold tracking-tight">Securing Environment...</p>
+          <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mx-auto mb-4" />
+          <p className="text-slate-600 font-bold">Initializing Secure Environment...</p>
         </div>
       </div>
     );
   }
 
-  // Result UI
   if (isSubmitted) {
     const passed = score >= 70;
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full bg-white rounded-[40px] shadow-2xl overflow-hidden border border-slate-100">
-          <div className={`${passed ? 'bg-emerald-600' : 'bg-slate-900'} p-12 text-white text-center`}>
-            <CheckCircle size={60} className="mx-auto mb-6 opacity-20" />
-            <h1 className="text-4xl font-black mb-2">{passed ? 'Qualified!' : 'Test Complete'}</h1>
-            <p className="opacity-80">Score: {score}%</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans">
+        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden text-center p-10 border border-slate-100">
+          <div className={`w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center ${passed ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+            {passed ? <CheckCircle size={40} /> : <AlertCircle size={40} />}
           </div>
-          <div className="p-12 text-center">
-            <button onClick={() => navigate('/dashboard')} className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold">Back to Dashboard</button>
-          </div>
+          <h1 className="text-3xl font-black text-slate-900 mb-2">{passed ? 'Qualified!' : 'Test Ended'}</h1>
+          <p className="text-slate-500 mb-8">Your accuracy: <span className="font-bold text-slate-900">{score}%</span></p>
+          <button onClick={() => navigate('/dashboard')} className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2">
+            Go to Dashboard <ArrowRight size={18} />
+          </button>
         </div>
       </div>
     );
@@ -150,58 +139,53 @@ const ProfessionalTestEngine: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans">
-      {/* Header */}
-      <div className="bg-[#1e293b] border-b border-slate-800 px-8 py-5 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-4">
-          <div className="bg-emerald-600 px-3 py-1 rounded-md text-[10px] font-black uppercase text-white">Encrypted Session</div>
-          <div className="text-sm font-bold tracking-tight">Professional Assessment System</div>
+      <div className="bg-[#1e293b] border-b border-slate-800 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div className="flex items-center gap-3">
+          <div className="bg-emerald-500 w-2 h-2 rounded-full animate-pulse" />
+          <span className="text-xs font-black uppercase tracking-widest text-slate-400">Secure Examination Mode</span>
         </div>
         <div className="flex items-center gap-6">
-          <div className="bg-slate-900 px-6 py-2 rounded-xl border-2 border-slate-700">
-            <span className="font-mono text-2xl font-black">{formatTime(timeLeft)}</span>
+          <div className="bg-slate-900 px-5 py-2 rounded-xl border border-slate-700 font-mono text-xl font-bold">
+            {formatTime(timeLeft)}
           </div>
-          <button onClick={handleSubmit} className="bg-indigo-600 px-8 py-3 rounded-xl font-bold hover:bg-indigo-500 transition-all">Submit Test</button>
+          <button onClick={handleSubmit} className="bg-indigo-600 hover:bg-indigo-500 px-6 py-2 rounded-lg font-bold transition-all text-sm">Submit</button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto py-16 px-6">
-        <div className="bg-[#1e293b] rounded-[40px] p-10 md:p-16 border border-slate-800 shadow-2xl relative">
-          <div className="absolute top-0 left-0 w-2 h-full bg-indigo-600" />
-          <h2 className="text-2xl md:text-4xl font-bold mb-14">{questions[currentQuestion].text}</h2>
-          <div className="grid gap-4">
-            {questions[currentQuestion].options.map((option, index) => (
+      <div className="max-w-3xl mx-auto py-12 px-6">
+        <div className="bg-[#1e293b] rounded-3xl p-8 md:p-12 border border-slate-800 shadow-2xl">
+          <p className="text-indigo-400 text-xs font-bold uppercase mb-4">Question {currentQuestion + 1} of {questions.length}</p>
+          <h2 className="text-xl md:text-2xl font-bold mb-10 leading-relaxed">{questions[currentQuestion].text}</h2>
+          <div className="grid gap-3">
+            {questions[currentQuestion].options.map((opt, idx) => (
               <button
-                key={index}
+                key={idx}
                 onClick={() => {
-                  const newAnswers = [...answers];
-                  newAnswers[currentQuestion] = index;
-                  setAnswers(newAnswers);
+                  const a = [...answers];
+                  a[currentQuestion] = idx;
+                  setAnswers(a);
                 }}
-                className={`w-full text-left p-6 rounded-2xl border-2 transition-all flex items-center gap-6 ${
-                  answers[currentQuestion] === index ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800 bg-slate-900/30'
+                className={`w-full text-left p-5 rounded-xl border-2 transition-all flex items-center gap-4 ${
+                  answers[currentQuestion] === idx ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800 bg-slate-900/40 hover:border-slate-700'
                 }`}
               >
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-xl ${
-                  answers[currentQuestion] === index ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-500'
-                }`}>
-                  {String.fromCharCode(65 + index)}
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold ${answers[currentQuestion] === idx ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
+                  {String.fromCharCode(65 + idx)}
                 </div>
-                <span className="text-lg font-medium">{option}</span>
+                <span className="font-medium text-slate-200">{opt}</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="mt-12 flex justify-between items-center">
-          <button disabled={currentQuestion === 0} onClick={() => setCurrentQuestion(prev => prev - 1)} className="px-8 py-4 font-bold text-slate-500 disabled:opacity-0">← Back</button>
+        <div className="mt-8 flex justify-between">
+          <button disabled={currentQuestion === 0} onClick={() => setCurrentQuestion(p => p - 1)} className="text-slate-500 font-bold disabled:opacity-0">← Previous</button>
           <button 
             disabled={currentQuestion === questions.length - 1} 
-            onClick={() => setCurrentQuestion(prev => prev + 1)}
-            className="px-12 py-4 bg-indigo-600 rounded-2xl font-bold disabled:opacity-30"
+            onClick={() => setCurrentQuestion(p => p + 1)}
+            className="bg-slate-800 px-8 py-3 rounded-xl font-bold hover:bg-slate-700 disabled:opacity-20"
           >
-            Next Question →
+            Next →
           </button>
         </div>
       </div>
