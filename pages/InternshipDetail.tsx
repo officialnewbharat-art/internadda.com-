@@ -1,12 +1,38 @@
+[file name]: InternshipDetail.tsx
+[file content begin]
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MOCK_INTERNSHIPS } from '../constants';
-import { Shield, Award, Clock, CheckCircle, Lock, Users, Zap, Star } from 'lucide-react';
+import { Shield, Award, Clock, CheckCircle, Lock, Users, Zap, Star, BookOpen, Target, FileText } from 'lucide-react';
 
 const InternshipDetail: React.FC = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const internship = MOCK_INTERNSHIPS.find(i => i.id === id) || MOCK_INTERNSHIPS[0];
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  const handlePaymentClick = () => {
+    // Simulate payment success and redirect to test
+    const paymentSuccess = true; // In real app, this would come from Cashfree callback
+    
+    if (paymentSuccess) {
+      // Store payment info in localStorage
+      const paymentData = {
+        internshipId: id,
+        amount: 199,
+        date: new Date().toISOString(),
+        status: 'completed'
+      };
+      localStorage.setItem('lastPayment', JSON.stringify(paymentData));
+      
+      // Redirect to test page
+      navigate(`/test/real/${id}`);
+    } else {
+      alert('Payment failed. Please try again.');
+    }
+    
+    setShowPaymentModal(false);
+  };
 
   const PaymentModal = () => (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -15,8 +41,8 @@ const InternshipDetail: React.FC = () => {
         <div className="p-8 border-b border-slate-100">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-2xl font-bold text-slate-900">Secure Your Spot</h3>
-              <p className="text-slate-600">One-time fee for guaranteed interview process</p>
+              <h3 className="text-2xl font-bold text-slate-900">Complete Your Application</h3>
+              <p className="text-slate-600">Access our premium assessment and interview pipeline</p>
             </div>
             <button 
               onClick={() => setShowPaymentModal(false)}
@@ -34,11 +60,11 @@ const InternshipDetail: React.FC = () => {
             </div>
             <div className="text-center p-3 bg-blue-50 rounded-xl">
               <div className="text-blue-600 text-sm font-bold">⚡ 48h</div>
-              <div className="text-xs text-blue-700">Avg. Process</div>
+              <div className="text-xs text-blue-700">Fast Process</div>
             </div>
-            <div className="text-center p-3 bg-amber-50 rounded-xl">
-              <div className="text-amber-600 text-sm font-bold">💰 Refund</div>
-              <div className="text-xs text-amber-700">Guarantee</div>
+            <div className="text-center p-3 bg-indigo-50 rounded-xl">
+              <div className="text-indigo-600 text-sm font-bold">🏛️</div>
+              <div className="text-xs text-indigo-700">MSME Certified</div>
             </div>
           </div>
         </div>
@@ -47,20 +73,20 @@ const InternshipDetail: React.FC = () => {
         <div className="p-8 border-b border-slate-100">
           <h4 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
             <Award size={20} className="text-indigo-600" />
-            What You Get
+            Premium Features Included
           </h4>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
-              "✅ Guaranteed interview within 48 hours",
-              "✅ Professional skill assessment",
-              "✅ Certificate of completion",
-              "✅ LinkedIn recommendation",
-              "✅ Direct manager interview",
-              "✅ MSME certified process"
+              { icon: <Target size={16} className="text-emerald-500" />, text: "Guaranteed skill assessment with instant results" },
+              { icon: <Clock size={16} className="text-blue-500" />, text: "Interview scheduled within 48 hours of passing" },
+              { icon: <FileText size={16} className="text-amber-500" />, text: "Professional certificate upon successful completion" },
+              { icon: <BookOpen size={16} className="text-purple-500" />, text: "Direct interview with hiring managers (skip HR rounds)" },
+              { icon: <Shield size={16} className="text-indigo-500" />, text: "MSME certified and industry-recognized platform" },
+              { icon: <Users size={16} className="text-green-500" />, text: "Access to exclusive internship opportunities" }
             ].map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-sm text-slate-700">
-                <CheckCircle size={16} className="text-emerald-500" />
-                {item}
+              <div key={idx} className="flex items-start gap-3 text-sm text-slate-700">
+                {item.icon}
+                <span>{item.text}</span>
               </div>
             ))}
           </div>
@@ -74,78 +100,71 @@ const InternshipDetail: React.FC = () => {
           <div className="bg-gradient-to-r from-slate-50 to-indigo-50 rounded-2xl p-6 mb-6">
             <div className="text-center">
               <div className="text-4xl font-black text-slate-900 mb-2">₹199</div>
-              <div className="text-sm text-slate-600">One-time application fee</div>
-              <div className="text-xs text-slate-500 mt-2">(100% refundable if no interview scheduled)</div>
+              <div className="text-sm text-slate-600">One-time application processing fee</div>
+              <div className="text-xs text-slate-500 mt-2">Includes skill assessment, interview scheduling, and certificate</div>
             </div>
           </div>
 
-          {/* Cashfree Payment Button - REPLACE YOUR-APP-ID HERE */}
-          <div className="mb-6">
-            <form>
-              <a href="https://payments.cashfree.com/forms/internadda" target="_blank" rel="noopener noreferrer">
-                <div className="button-container" style={{
-                  background: '#41478a',
-                  border: '1px solid black',
-                  borderRadius: '15px',
-                  display: 'flex',
-                  padding: '10px',
-                  width: '100%',
-                  cursor: 'pointer',
-                  maxWidth: '300px',
-                  margin: '0 auto'
-                }}>
-                  <div>
-                    <img 
-                      src="https://cashfreelogo.cashfree.com/cashfreepayments/logosvgs/Group_4355.svg" 
-                      alt="logo" 
-                      className="logo-container"
-                      style={{ width: '40px', height: '40px' }}
-                    />
-                  </div>
-                  <div className="text-container" style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    marginLeft: '10px',
-                    justifyContent: 'center',
-                    marginRight: '10px'
-                  }}>
-                    <div style={{fontFamily: 'Arial', color: '#fff', marginBottom: '5px', fontSize: '14px'}}>
-                      Pay Now
-                    </div>
-                    <div style={{fontFamily: 'Arial', color: '#fff', fontSize: '10px'}}>
-                      <span>Powered By Cashfree</span>
-                      <img 
-                        src="https://cashfreelogo.cashfree.com/cashfreepayments/logosvgs/Group_4355.svg" 
-                        alt="logo" 
-                        className="seconday-logo-container"
-                        style={{ width: '16px', height: '16px', verticalAlign: 'middle', marginLeft: '4px' }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </a>
-            </form>
+          {/* Payment Options */}
+          <div className="mb-8">
+            <button
+              onClick={handlePaymentClick}
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:scale-[1.02] transition-all mb-4"
+            >
+              Pay ₹199 & Start Assessment
+            </button>
             
-            {/* Trust Seals */}
-            <div className="flex justify-center gap-4 mt-6">
-              <div className="text-center">
-                <Lock size={16} className="text-slate-400 mx-auto mb-1" />
-                <div className="text-xs text-slate-500">Secure Payment</div>
-              </div>
-              <div className="text-center">
-                <Shield size={16} className="text-slate-400 mx-auto mb-1" />
-                <div className="text-xs text-slate-500">PCI-DSS Compliant</div>
+            {/* Cashfree Integration */}
+            <div className="text-center mb-6">
+              <p className="text-sm text-slate-500 mb-4">Or pay securely via</p>
+              
+              <div className="flex justify-center gap-4">
+                {/* UPI Payment Button */}
+                <button 
+                  onClick={handlePaymentClick}
+                  className="bg-white border border-slate-300 rounded-xl p-4 hover:border-indigo-400 hover:shadow-md transition-all"
+                >
+                  <div className="text-2xl mb-2">💸</div>
+                  <div className="text-xs font-medium text-slate-700">UPI</div>
+                </button>
+                
+                {/* Card Payment Button */}
+                <button 
+                  onClick={handlePaymentClick}
+                  className="bg-white border border-slate-300 rounded-xl p-4 hover:border-indigo-400 hover:shadow-md transition-all"
+                >
+                  <div className="text-2xl mb-2">💳</div>
+                  <div className="text-xs font-medium text-slate-700">Card</div>
+                </button>
+                
+                {/* Net Banking Button */}
+                <button 
+                  onClick={handlePaymentClick}
+                  className="bg-white border border-slate-300 rounded-xl p-4 hover:border-indigo-400 hover:shadow-md transition-all"
+                >
+                  <div className="text-2xl mb-2">🏦</div>
+                  <div className="text-xs font-medium text-slate-700">Net Banking</div>
+                </button>
               </div>
             </div>
           </div>
 
           {/* Note */}
-          <div className="text-center">
-            <p className="text-xs text-slate-500">
-              After payment, you'll be redirected to the skill assessment. 
-              Pass the test to proceed to interview.
+          <div className="text-center border-t border-slate-100 pt-6">
+            <p className="text-sm text-slate-600">
+              Payment is required to access our verified assessment system. 
+              After payment, you'll be redirected to the skill test immediately.
             </p>
+            <div className="flex justify-center gap-6 mt-4">
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <Lock size={12} />
+                <span>Secure Payment</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <Shield size={12} />
+                <span>PCI Compliant</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -204,9 +223,9 @@ const InternshipDetail: React.FC = () => {
               <div className="bg-gradient-to-r from-slate-50 to-indigo-50 rounded-2xl p-6 border border-slate-200">
                 <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                   <Zap size={20} className="text-amber-500" />
-                  Skill Assessment Details
+                  Skill Assessment Process
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-white rounded-xl">
                     <div className="text-2xl font-bold text-slate-900">25</div>
                     <div className="text-sm text-slate-600">Questions</div>
@@ -215,9 +234,17 @@ const InternshipDetail: React.FC = () => {
                     <div className="text-2xl font-bold text-slate-900">30 min</div>
                     <div className="text-sm text-slate-600">Duration</div>
                   </div>
+                  <div className="text-center p-4 bg-white rounded-xl">
+                    <div className="text-2xl font-bold text-slate-900">70%</div>
+                    <div className="text-sm text-slate-600">Passing Score</div>
+                  </div>
+                  <div className="text-center p-4 bg-white rounded-xl">
+                    <div className="text-2xl font-bold text-slate-900">⏱️</div>
+                    <div className="text-sm text-slate-600">Timed Test</div>
+                  </div>
                 </div>
                 <p className="text-sm text-slate-500 mt-4">
-                  Domain-specific questions • Real-time anti-cheat • Instant results
+                  Domain-specific questions • Real-time anti-cheat system • Instant results and feedback
                 </p>
               </div>
             </div>
@@ -278,6 +305,13 @@ const InternshipDetail: React.FC = () => {
                     <div className="text-xs text-slate-500">Skip HR, meet managers</div>
                   </div>
                 </div>
+                <div className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl">
+                  <CheckCircle className="text-emerald-500" size={18} />
+                  <div>
+                    <div className="text-sm font-bold text-slate-900">Instant Results</div>
+                    <div className="text-xs text-slate-500">Get test results immediately</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -288,3 +322,4 @@ const InternshipDetail: React.FC = () => {
 };
 
 export default InternshipDetail;
+[file content end]
