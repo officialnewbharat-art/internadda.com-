@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MOCK_INTERNSHIPS } from '../constants';
 import { 
   Shield, Award, Clock, CheckCircle, Lock, Users, 
   Zap, Star, BookOpen, Target, FileText, Loader2,
-  CreditCard, Smartphone, Building
+  CreditCard, Smartphone, Building, ExternalLink
 } from 'lucide-react';
 
 const InternshipDetail: React.FC = () => {
@@ -13,6 +13,7 @@ const InternshipDetail: React.FC = () => {
   const internship = MOCK_INTERNSHIPS.find(i => i.id === id) || MOCK_INTERNSHIPS[0];
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   // Check if payment was already made for this internship
   const checkExistingPayment = () => {
@@ -20,17 +21,82 @@ const InternshipDetail: React.FC = () => {
     if (paymentData) {
       const data = JSON.parse(paymentData);
       if (data.status === 'success') {
-        // Payment already done, redirect to test
-        navigate(`/test/real/${id}`);
         return true;
       }
     }
     return false;
   };
 
+  // Set up payment status listener on mount
+  useEffect(() => {
+    if (showPaymentModal) {
+      // Listen for payment success messages from Cashfree
+      const handleMessage = (event: MessageEvent) => {
+        // Check if message is from Cashfree domain (in production, verify origin)
+        if (event.data && event.data.type === 'CASHFREE_PAYMENT_SUCCESS') {
+          console.log('Payment success message received:', event.data);
+          
+          const paymentData = {
+            internshipId: id,
+            internshipTitle: internship.title,
+            orderId: event.data.orderId,
+            transactionId: event.data.referenceId,
+            amount: event.data.orderAmount,
+            date: new Date().toISOString(),
+            status: 'success'
+          };
+          
+          // Store payment data
+          localStorage.setItem(`payment_${id}`, JSON.stringify(paymentData));
+          localStorage.setItem('lastPayment', JSON.stringify(paymentData));
+          
+          setPaymentSuccess(true);
+          setPaymentProcessing(false);
+          
+          // Close payment window
+          const paymentWindow = (window as any).cashfreePaymentWindow;
+          if (paymentWindow && !paymentWindow.closed) {
+            paymentWindow.close();
+          }
+          
+          // Redirect to test after 1 second
+          setTimeout(() => {
+            setShowPaymentModal(false);
+            navigate(`/test/real/${id}`);
+          }, 1000);
+        }
+      };
+      
+      // Listen for storage changes (for cross-tab communication)
+      const handleStorageChange = (event: StorageEvent) => {
+        if (event.key === `payment_${id}` && event.newValue) {
+          const data = JSON.parse(event.newValue);
+          if (data.status === 'success') {
+            setPaymentSuccess(true);
+            setPaymentProcessing(false);
+            
+            setTimeout(() => {
+              setShowPaymentModal(false);
+              navigate(`/test/real/${id}`);
+            }, 1000);
+          }
+        }
+      };
+      
+      window.addEventListener('message', handleMessage);
+      window.addEventListener('storage', handleStorageChange);
+      
+      return () => {
+        window.removeEventListener('message', handleMessage);
+        window.removeEventListener('storage', handleStorageChange);
+      };
+    }
+  }, [showPaymentModal, id, navigate, internship.title]);
+
   const handlePaymentClick = async () => {
     // Check for existing payment first
     if (checkExistingPayment()) {
+      navigate(`/test/real/${id}`);
       return;
     }
 
@@ -39,8 +105,9 @@ const InternshipDetail: React.FC = () => {
 
   const initiatePayment = (paymentMethod: string) => {
     setPaymentProcessing(true);
+    setPaymentSuccess(false);
     
-    // Generate order ID
+    // Generate unique order ID
     const orderId = `ORD_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     // Create payment data
@@ -55,14 +122,22 @@ const InternshipDetail: React.FC = () => {
     };
     
     // Store initial payment data
+    localStorage.setItem(`payment_${id}`, JSON.stringify(paymentData));
     localStorage.setItem('pendingPayment', JSON.stringify(paymentData));
+    
+    // In production, this would be your backend endpoint that returns Cashfree payment link
+    // For demo, we'll simulate with a direct link
+    const cashfreeUrl = `https://payments.cashfree.com/forms/internadda?order_id=${orderId}&order_amount=199`;
     
     // Open Cashfree payment in new window
     const paymentWindow = window.open(
-      `https://payments.cashfree.com/forms/internadda?order_id=${orderId}&order_amount=199`,
+      cashfreeUrl,
       'CashfreePayment',
-      'width=500,height=700,scrollbars=yes,resizable=yes'
+      'width=500,height=700,scrollbars=yes,resizable=yes,top=100,left=100'
     );
+    
+    // Store window reference for later use
+    (window as any).cashfreePaymentWindow = paymentWindow;
     
     if (!paymentWindow) {
       alert('Please allow popups to continue with payment');
@@ -70,232 +145,293 @@ const InternshipDetail: React.FC = () => {
       return;
     }
     
-    // Listen for payment completion
-    const checkPaymentInterval = setInterval(() => {
-      try {
-        // Check for payment success in localStorage
-        const successData = localStorage.getItem('paymentSuccess');
+    // Focus on the payment window
+    paymentWindow.focus();
+    
+    // For DEMO PURPOSES ONLY: Simulate payment success after 5 seconds
+    // Remove this in production
+    const demoMode = true; // Set to false in production
+    if (demoMode) {
+      setTimeout(() => {
+        const demoPaymentData = {
+          internshipId: id,
+          internshipTitle: internship.title,
+          orderId: orderId,
+          transactionId: `TXN_${Date.now()}`,
+          amount: 199,
+          paymentMethod: paymentMethod,
+          date: new Date().toISOString(),
+          status: 'success'
+        };
         
-        if (successData) {
-          const data = JSON.parse(successData);
-          if (data.orderId === orderId && data.status === 'success') {
-            clearInterval(checkPaymentInterval);
-            localStorage.removeItem('paymentSuccess');
-            
-            // Store final payment data
-            const finalPaymentData = {
-              ...paymentData,
-              status: 'success',
-              transactionId: data.referenceId,
-              timestamp: new Date().toISOString()
-            };
-            
-            localStorage.setItem(`payment_${id}`, JSON.stringify(finalPaymentData));
-            localStorage.setItem('lastPayment', JSON.stringify(finalPaymentData));
-            
-            setPaymentProcessing(false);
-            setShowPaymentModal(false);
-            
-            // Show success message
-            alert('Payment successful! Redirecting to skill assessment...');
-            
-            // Redirect to test
-            setTimeout(() => {
-              navigate(`/test/real/${id}`);
-            }, 1500);
-          }
+        localStorage.setItem(`payment_${id}`, JSON.stringify(demoPaymentData));
+        localStorage.setItem('lastPayment', JSON.stringify(demoPaymentData));
+        
+        setPaymentSuccess(true);
+        setPaymentProcessing(false);
+        
+        // Close payment window
+        if (paymentWindow && !paymentWindow.closed) {
+          paymentWindow.close();
         }
-      } catch (error) {
-        console.error('Payment check error:', error);
+        
+        // Show success message and redirect
+        setTimeout(() => {
+          setShowPaymentModal(false);
+          navigate(`/test/real/${id}`);
+        }, 1000);
+      }, 5000);
+    }
+    
+    // Check if payment window closed without payment
+    const checkWindowClosed = setInterval(() => {
+      if (paymentWindow.closed && !paymentSuccess && !paymentProcessing) {
+        clearInterval(checkWindowClosed);
+        
+        // Check if payment was completed
+        const paymentData = localStorage.getItem(`payment_${id}`);
+        if (paymentData) {
+          const data = JSON.parse(paymentData);
+          if (data.status === 'success') {
+            setPaymentSuccess(true);
+            setTimeout(() => {
+              setShowPaymentModal(false);
+              navigate(`/test/real/${id}`);
+            }, 1000);
+          } else {
+            setPaymentProcessing(false);
+            alert('Payment was not completed. Please try again.');
+          }
+        } else {
+          setPaymentProcessing(false);
+        }
       }
-    }, 2000);
+    }, 1000);
     
     // Cleanup after 10 minutes
     setTimeout(() => {
-      clearInterval(checkPaymentInterval);
-      if (paymentProcessing) {
+      clearInterval(checkWindowClosed);
+      if (paymentProcessing && !paymentSuccess) {
         setPaymentProcessing(false);
         alert('Payment timeout. Please try again.');
       }
     }, 600000);
   };
 
-  const PaymentModal = () => (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="p-8 border-b border-slate-100">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-2xl font-bold text-slate-900">Complete Your Application</h3>
-              <p className="text-slate-600">Access our premium assessment and interview pipeline</p>
-            </div>
-            <button 
-              onClick={() => {
-                if (!paymentProcessing) {
-                  setShowPaymentModal(false);
-                }
-              }}
-              className="p-2 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={paymentProcessing}
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* Trust Badges */}
-          <div className="grid grid-cols-3 gap-3 mb-8">
-            <div className="text-center p-3 bg-emerald-50 rounded-xl">
-              <div className="text-emerald-600 text-sm font-bold">🎯 98%</div>
-              <div className="text-xs text-emerald-700">Success Rate</div>
-            </div>
-            <div className="text-center p-3 bg-blue-50 rounded-xl">
-              <div className="text-blue-600 text-sm font-bold">⚡ 48h</div>
-              <div className="text-xs text-blue-700">Fast Process</div>
-            </div>
-            <div className="text-center p-3 bg-indigo-50 rounded-xl">
-              <div className="text-indigo-600 text-sm font-bold">🏛️</div>
-              <div className="text-xs text-indigo-700">MSME Certified</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Benefits */}
-        <div className="p-8 border-b border-slate-100">
-          <h4 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <Award size={20} className="text-indigo-600" />
-            Premium Features Included
-          </h4>
-          <div className="space-y-4">
-            {[
-              { icon: <Target size={16} className="text-emerald-500" />, text: "Guaranteed skill assessment with instant results" },
-              { icon: <Clock size={16} className="text-blue-500" />, text: "Interview scheduled within 48 hours of passing" },
-              { icon: <FileText size={16} className="text-amber-500" />, text: "Professional certificate upon successful completion" },
-              { icon: <BookOpen size={16} className="text-purple-500" />, text: "Direct interview with hiring managers (skip HR rounds)" },
-              { icon: <Shield size={16} className="text-indigo-500" />, text: "MSME certified and industry-recognized platform" },
-              { icon: <Users size={16} className="text-green-500" />, text: "Access to exclusive internship opportunities" }
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-start gap-3 text-sm text-slate-700">
-                {item.icon}
-                <span>{item.text}</span>
+  const PaymentModal = () => {
+    if (paymentSuccess) {
+      return (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden">
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 mx-auto bg-gradient-to-r from-emerald-100 to-green-100 rounded-full flex items-center justify-center mb-6">
+                <CheckCircle size={40} className="text-emerald-600" />
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Payment Section */}
-        <div className="p-8">
-          {paymentProcessing ? (
-            <div className="text-center py-8">
-              <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
-              <h4 className="font-bold text-slate-900 mb-2">Processing Payment</h4>
+              
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">Payment Successful! ✅</h2>
+              
               <p className="text-slate-600 mb-6">
-                Please complete the payment in the new window. Do not close this window.
+                Your payment of ₹199 has been processed successfully. 
+                You can now access the skill assessment.
               </p>
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                <p className="text-sm text-blue-700">
-                  If payment window didn't open, please check your popup blocker settings.
+              
+              <div className="bg-emerald-50 rounded-xl p-4 mb-6 border border-emerald-100">
+                <p className="text-sm text-emerald-700 font-medium">
+                  Redirecting to skill assessment...
                 </p>
               </div>
-            </div>
-          ) : (
-            <>
-              <h4 className="font-bold text-slate-900 mb-6">Complete Payment</h4>
               
-              {/* Amount Display */}
-              <div className="bg-gradient-to-r from-slate-50 to-indigo-50 rounded-2xl p-6 mb-6">
-                <div className="text-center">
-                  <div className="text-4xl font-black text-slate-900 mb-2">₹199</div>
-                  <div className="text-sm text-slate-600">One-time application processing fee</div>
-                  <div className="text-xs text-slate-500 mt-2">
-                    Includes skill assessment, interview scheduling, and certificate
-                  </div>
-                </div>
-              </div>
-
-              {/* Main Cashfree Payment Button */}
-              <div className="mb-8">
-                <button
-                  onClick={() => initiatePayment('cashfree')}
-                  className="w-full bg-[#41478a] hover:bg-[#353b75] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-all mb-4"
-                >
-                  <img 
-                    src="https://cashfreelogo.cashfree.com/cashfreepayments/logosvgs/Group_4355.svg" 
-                    alt="Cashfree" 
-                    className="w-8 h-8"
-                  />
-                  <div className="text-left">
-                    <div className="text-lg font-bold">Pay ₹199 Now</div>
-                    <div className="text-xs opacity-90">Powered by Cashfree Payments</div>
-                  </div>
-                </button>
-
-                {/* Alternative Payment Methods */}
-                <div className="text-center mb-6">
-                  <p className="text-sm text-slate-500 mb-4">Or choose payment method:</p>
-                  
-                  <div className="grid grid-cols-3 gap-3">
-                    <button 
-                      onClick={() => initiatePayment('upi')}
-                      className="bg-white border border-slate-300 rounded-xl p-4 hover:border-blue-500 hover:shadow-md transition-all group"
-                    >
-                      <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">💸</div>
-                      <div className="text-xs font-medium text-slate-700">UPI</div>
-                    </button>
-                    
-                    <button 
-                      onClick={() => initiatePayment('card')}
-                      className="bg-white border border-slate-300 rounded-xl p-4 hover:border-blue-500 hover:shadow-md transition-all group"
-                    >
-                      <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">💳</div>
-                      <div className="text-xs font-medium text-slate-700">Card</div>
-                    </button>
-                    
-                    <button 
-                      onClick={() => initiatePayment('netbanking')}
-                      className="bg-white border border-slate-300 rounded-xl p-4 hover:border-blue-500 hover:shadow-md transition-all group"
-                    >
-                      <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">🏦</div>
-                      <div className="text-xs font-medium text-slate-700">Net Banking</div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Payment Security & Guarantee */}
-          <div className="text-center border-t border-slate-100 pt-6">
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                <Lock size={12} className="text-green-500" />
-                <span>256-bit SSL Secured</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                <Shield size={12} className="text-blue-500" />
-                <span>PCI DSS Compliant</span>
+              <div className="flex justify-center">
+                <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
               </div>
             </div>
-            
-            <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-100">
-              <p className="text-sm text-emerald-700 font-medium">
-                💰 100% Money-Back Guarantee: Full refund if no interview is scheduled within 48 hours
-              </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          {/* Header */}
+          <div className="p-8 border-b border-slate-100">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-slate-900">Complete Your Application</h3>
+                <p className="text-slate-600">Access our premium assessment and interview pipeline</p>
+              </div>
+              <button 
+                onClick={() => {
+                  if (!paymentProcessing) {
+                    setShowPaymentModal(false);
+                  }
+                }}
+                className="p-2 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={paymentProcessing}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="grid grid-cols-3 gap-3 mb-8">
+              <div className="text-center p-3 bg-emerald-50 rounded-xl">
+                <div className="text-emerald-600 text-sm font-bold">🎯 98%</div>
+                <div className="text-xs text-emerald-700">Success Rate</div>
+              </div>
+              <div className="text-center p-3 bg-blue-50 rounded-xl">
+                <div className="text-blue-600 text-sm font-bold">⚡ 48h</div>
+                <div className="text-xs text-blue-700">Fast Process</div>
+              </div>
+              <div className="text-center p-3 bg-indigo-50 rounded-xl">
+                <div className="text-indigo-600 text-sm font-bold">🏛️</div>
+                <div className="text-xs text-indigo-700">MSME Certified</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Benefits */}
+          <div className="p-8 border-b border-slate-100">
+            <h4 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <Award size={20} className="text-indigo-600" />
+              Premium Features Included
+            </h4>
+            <div className="space-y-4">
+              {[
+                { icon: <Target size={16} className="text-emerald-500" />, text: "Guaranteed skill assessment with instant results" },
+                { icon: <Clock size={16} className="text-blue-500" />, text: "Interview scheduled within 48 hours of passing" },
+                { icon: <FileText size={16} className="text-amber-500" />, text: "Professional certificate upon successful completion" },
+                { icon: <BookOpen size={16} className="text-purple-500" />, text: "Direct interview with hiring managers (skip HR rounds)" },
+                { icon: <Shield size={16} className="text-indigo-500" />, text: "MSME certified and industry-recognized platform" },
+                { icon: <Users size={16} className="text-green-500" />, text: "Access to exclusive internship opportunities" }
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-start gap-3 text-sm text-slate-700">
+                  {item.icon}
+                  <span>{item.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Payment Section */}
+          <div className="p-8">
+            {paymentProcessing ? (
+              <div className="text-center py-8">
+                <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
+                <h4 className="font-bold text-slate-900 mb-2">Processing Payment</h4>
+                <p className="text-slate-600 mb-6">
+                  Please complete the payment in the new window. Do not close this window.
+                </p>
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                  <p className="text-sm text-blue-700 mb-2">
+                    <ExternalLink size={16} className="inline mr-2" />
+                    If payment window didn't open,{' '}
+                    <button 
+                      onClick={() => window.open('https://payments.cashfree.com/forms/internadda', '_blank')}
+                      className="text-blue-600 font-bold underline"
+                    >
+                      click here to open payment page
+                    </button>
+                  </p>
+                  <p className="text-xs text-blue-600">
+                    Make sure to allow popups for this website
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <h4 className="font-bold text-slate-900 mb-6">Complete Payment</h4>
+                
+                {/* Amount Display */}
+                <div className="bg-gradient-to-r from-slate-50 to-indigo-50 rounded-2xl p-6 mb-6">
+                  <div className="text-center">
+                    <div className="text-4xl font-black text-slate-900 mb-2">₹199</div>
+                    <div className="text-sm text-slate-600">One-time application processing fee</div>
+                    <div className="text-xs text-slate-500 mt-2">
+                      Includes skill assessment, interview scheduling, and certificate
+                    </div>
+                  </div>
+                </div>
+
+                {/* Main Cashfree Payment Button */}
+                <div className="mb-8">
+                  <button
+                    onClick={() => initiatePayment('cashfree')}
+                    className="w-full bg-[#41478a] hover:bg-[#353b75] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-all mb-4"
+                  >
+                    <img 
+                      src="https://cashfreelogo.cashfree.com/cashfreepayments/logosvgs/Group_4355.svg" 
+                      alt="Cashfree" 
+                      className="w-8 h-8"
+                    />
+                    <div className="text-left">
+                      <div className="text-lg font-bold">Pay ₹199 Now</div>
+                      <div className="text-xs opacity-90">Powered by Cashfree Payments</div>
+                    </div>
+                  </button>
+
+                  {/* Alternative Payment Methods */}
+                  <div className="text-center mb-6">
+                    <p className="text-sm text-slate-500 mb-4">Or choose payment method:</p>
+                    
+                    <div className="grid grid-cols-3 gap-3">
+                      <button 
+                        onClick={() => initiatePayment('upi')}
+                        className="bg-white border border-slate-300 rounded-xl p-4 hover:border-blue-500 hover:shadow-md transition-all group"
+                      >
+                        <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">💸</div>
+                        <div className="text-xs font-medium text-slate-700">UPI</div>
+                      </button>
+                      
+                      <button 
+                        onClick={() => initiatePayment('card')}
+                        className="bg-white border border-slate-300 rounded-xl p-4 hover:border-blue-500 hover:shadow-md transition-all group"
+                      >
+                        <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">💳</div>
+                        <div className="text-xs font-medium text-slate-700">Card</div>
+                      </button>
+                      
+                      <button 
+                        onClick={() => initiatePayment('netbanking')}
+                        className="bg-white border border-slate-300 rounded-xl p-4 hover:border-blue-500 hover:shadow-md transition-all group"
+                      >
+                        <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">🏦</div>
+                        <div className="text-xs font-medium text-slate-700">Net Banking</div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Payment Security & Guarantee */}
+            <div className="text-center border-t border-slate-100 pt-6">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <Lock size={12} className="text-green-500" />
+                  <span>256-bit SSL Secured</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <Shield size={12} className="text-blue-500" />
+                  <span>PCI DSS Compliant</span>
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-100">
+                <p className="text-sm text-emerald-700 font-medium">
+                  💰 100% Money-Back Guarantee: Full refund if no interview is scheduled within 48 hours
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Check if user has already paid for this internship
   const hasPaidForInternship = () => {
-    const paymentData = localStorage.getItem(`payment_${id}`);
-    if (paymentData) {
-      const data = JSON.parse(paymentData);
-      return data.status === 'success';
-    }
-    return false;
+    return checkExistingPayment();
   };
 
   const handleApplyClick = () => {
