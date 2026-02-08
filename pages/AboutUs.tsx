@@ -2,77 +2,77 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const AboutUs: React.FC = () => {
-  const teamMembers = [
-    {
-      id: 1,
-      name: 'Rahul Sharma',
-      role: 'CEO & Founder',
-      education: 'Ex-Google, IIT Delhi',
-      image: 'https://picsum.photos/seed/rahulceo/300',
-      bio: 'Passionate about bridging the gap between education and industry.',
-      linkedin: '#'
-    },
-    {
-      id: 2,
-      name: 'Priya Patel',
-      role: 'CTO',
-      education: 'Ex-Microsoft, BITS Pilani',
-      image: 'https://picsum.photos/seed/priyacto/300',
-      bio: 'Building scalable tech solutions for student success.',
-      linkedin: '#'
-    },
-    {
-      id: 3,
-      name: 'Amit Kumar',
-      role: 'Head of Placements',
-      education: 'Ex-Amazon, IIM Ahmedabad',
-      image: 'https://picsum.photos/seed/amithr/300',
-      bio: 'Connecting talent with the right opportunities.',
-      linkedin: '#'
-    },
-    {
-      id: 4,
-      name: 'Neha Gupta',
-      role: 'Student Success Head',
-      education: 'Ex-Unacademy, Delhi University',
-      image: 'https://picsum.photos/seed/nehass/300',
-      bio: 'Ensuring every student gets the support they need.',
-      linkedin: '#'
-    }
-  ];
+const teamMembers = [
+  {
+    id: 1,
+    name: 'Lucky Tiwari',
+    role: 'Founder & CEO',
+    education: 'Entrepreneur | EdTech & AI',
+    image: 'https://iili.io/fbR5Kkx.png',
+    bio: 'Building InternAdda to bridge the gap between students and real industry experience.',
+    linkedin: 'https://www.linkedin.com/in/luckytiwari/'  
+  },
+  {
+    id: 2,
+    name: 'Vikash Yadav',
+    role: 'Co-Founder & PR Head',
+    education: 'Public Relations & Brand Strategy',
+    image: 'https://iili.io/fbRADV1.png',
+    bio: 'Managing partnerships, outreach, and public relations for InternAdda.',
+    linkedin: 'https://www.linkedin.com/in/vikash-yadav-626097313/'
+  },
+  {
+    id: 3,
+    name: 'Sumit Pandey',
+    role: 'CTO',
+    education: 'Full Stack Developer | System Architect',
+    image: 'https://iili.io/fbRAyla.png',
+    bio: 'Leading the tech vision and platform development.',
+    linkedin: 'https://www.linkedin.com/in/sumit-pandey-a94a052a1/'
+  },
+  {
+    id: 4,
+    name: 'Pranjal Singh',
+    role: 'COO',
+    education: 'Operations & Growth Strategy',
+    image: 'https://iili.io/fbRRJHv.png',
+    bio: 'Handling day-to-day operations and scaling the organization.',
+    linkedin: 'https://www.linkedin.com/in/pranjal-singh-204580374/'
+  }
+];
 
   const milestones = [
-    { year: '2020', title: 'Founded', desc: 'Started with a vision to revolutionize internships' },
-    { year: '2021', title: 'First 1000 Students', desc: 'Placed 1000+ students in top companies' },
-    { year: '2022', title: 'MSME Certification', desc: 'Received government MSME certification' },
-    { year: '2023', title: '7,000+ Students', desc: 'Expanded to 150+ partner companies' },
-    { year: '2024', title: 'National Recognition', desc: 'Featured in leading education platforms' }
+    { year: '2021', title: 'Founded', desc: 'Started with a vision to revolutionize internships' },
+    { year: '2022', title: 'First 1000 Students', desc: 'Placed 1000+ students in top companies' },
+    { year: '2023', title: 'MSME Certification', desc: 'Received government MSME certification' },
+    { year: '2024', title: '7,000+ Students', desc: 'Expanded to 150+ partner companies' },
+    { year: '2025', title: 'National Recognition', desc: 'Featured in leading education platforms' }
   ];
 
   const successStories = [
     {
       name: 'Aarav Sharma',
-      college: 'IIT Bombay',
-      role: 'Software Engineer @ Google',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
-      quote: "Internadda changed my life. From test to Google offer in 3 days.",
-      stats: { placedIn: '3 days', salary: '₹24 LPA' }
+      college: 'BHU',
+      role: 'Software Engineer @ Internadda',
+      image: 'https://iili.io/fmKACQa.jpg',
+      quote: "Internadda changed my life. From test to Internship offer in 3 days.",
+      stats: { placedIn: '3 days', salary: '₹15K' }
     },
     {
-      name: 'Priya Nair',
-      college: 'BITS Pilani',
-      role: 'Product Manager @ Microsoft',
-      image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop',
+      name: 'Payal Mittal',
+      college: 'Amity University',
+      role: 'HR Manager @ Internadda',
+      image: 'https://iili.io/fmLWXGs.png',
       quote: "The direct interview process eliminated months of uncertainty.",
-      stats: { placedIn: '48 hours', salary: '₹18 LPA' }
+      stats: { placedIn: '48 hours', salary: '₹10K' }
     },
     {
-      name: 'Rohan Mehta',
-      college: 'NIT Trichy',
-      role: 'Data Scientist @ Amazon',
+      name: 'Anurag Tiwari',
+      college: 'Delhi University',
+      role: 'Chief Marketing Officer @ Internadda',
       image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
       quote: "Skill-based assessment got me noticed by the right people.",
-      stats: { placedIn: '5 days', salary: '₹22 LPA' }
+      stats: { placedIn: '5 days', salary: '₹20K' }
     }
   ];
 
@@ -237,7 +237,7 @@ const AboutUs: React.FC = () => {
                       </div>
                       <div className="text-center p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
                         <div className="text-lg font-bold text-blue-700">{story.stats.salary}</div>
-                        <div className="text-xs text-blue-600">Starting Salary</div>
+                        <div className="text-xs text-blue-600">Stipend</div>
                       </div>
                     </div>
                   </div>
