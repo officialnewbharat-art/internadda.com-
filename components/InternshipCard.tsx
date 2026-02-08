@@ -29,8 +29,13 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
   const selectedStipend = STIPENDS[itemIndex];
   const selectedCompanyName = COMPANY_NAMES[itemIndex];
 
-  // Deterministic Company Count (stays the same on refresh for this specific card)
-  const staticCompanyCount = 4 + (Number(internship.id) % 6);
+  /** * Realistic Pseudo-Random Count:
+   * We multiply the ID by a prime number (1597) to scramble the sequence.
+   * This ensures ID 1 might be 41, ID 2 might be 23, etc. 
+   * Range: 20 to 50
+   */
+  const idSeed = Number(internship.id) * 1597;
+  const staticCompanyCount = 20 + (idSeed % 31);
   
   const [applications, setApplications] = useState(Math.floor(Math.random() * (150 - 130 + 1)) + 130);
 
