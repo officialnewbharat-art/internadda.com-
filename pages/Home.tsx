@@ -5,7 +5,7 @@ import {
   CheckCircle2, Users, Building2, ArrowRight, 
   ShieldCheck, Star, Award, Briefcase, Zap,
   Globe, Clock, Search, FileCheck, Check,
-  LayoutGrid
+  LayoutGrid, ExternalLink
 } from 'lucide-react';
 import InternshipCard from '../components/InternshipCard';
 import { MOCK_INTERNSHIPS, CATEGORIES } from '../constants';
@@ -14,6 +14,9 @@ const Home: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Internships');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [imagesLoaded, setImagesLoaded] = useState<boolean[]>(Array(2).fill(false));
+
+  // Show only 3 internships on home page
+  const displayedInternships = MOCK_INTERNSHIPS.slice(0, 3);
 
   const sliderImages = [
     "https://iili.io/fbunvBR.png",
@@ -41,8 +44,8 @@ const Home: React.FC = () => {
   }, []);
 
   const filteredInternships = selectedCategory === 'All Internships' 
-    ? MOCK_INTERNSHIPS 
-    : MOCK_INTERNSHIPS.filter(i => i.category === selectedCategory);
+    ? displayedInternships 
+    : displayedInternships.filter(i => i.category === selectedCategory);
 
   const students = [
     { name: "Ravi", img: "https://iili.io/fmKACQa.md.jpg" },
@@ -188,15 +191,15 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. INTERNSHIP MARKETPLACE */}
+      {/* 3. INTERNSHIP MARKETPLACE - SHOW ONLY 3 */}
       <section className="py-16 max-w-7xl mx-auto px-4" id="internships">
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold text-slate-900">Current Openings</h2>
-            <p className="text-sm text-slate-500">Verified and updated every 6 hours</p>
+            <h2 className="text-2xl font-bold text-slate-900">Featured Opportunities</h2>
+            <p className="text-sm text-slate-500">Top internships this week • View all for more</p>
           </div>
           <div className="flex flex-wrap gap-2 justify-center">
-            {CATEGORIES.map(cat => (
+            {CATEGORIES.slice(0, 4).map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -225,7 +228,7 @@ const Home: React.FC = () => {
             className="group flex items-center gap-2 px-8 py-3 bg-white border border-slate-200 text-slate-900 rounded-lg font-bold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
           >
             <LayoutGrid size={16} className="text-indigo-600" />
-            View All Internships
+            View All Internships ({MOCK_INTERNSHIPS.length})
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
