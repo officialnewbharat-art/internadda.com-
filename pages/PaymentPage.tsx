@@ -239,7 +239,7 @@ const PaymentPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <Users size={16} />
-            <span className="text-[10px] font-black uppercase">12,000+ Interns</span>
+            <span className="text-[10px] font-black uppercase">7,000+ Interns</span>
           </div>
           <div className="flex items-center gap-2">
             <BadgeCheck size={16} />
