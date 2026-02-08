@@ -186,6 +186,58 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
                       </div>
                     )}
 
+
+                  
+                  {/* Applied Internships */}
+                  {user.appliedInternships && user.appliedInternships.length > 0 && (
+                    <div className="mb-8">
+                      <h4 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                        <Briefcase size={20} className="text-indigo-600" />
+                        Applied Internships ({user.appliedInternships.length})
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {user.appliedInternships.slice(0, 2).map((internshipId: string) => {
+                          const internship = MOCK_INTERNSHIPS.find(i => i.id === internshipId);
+                          if (!internship) return null;
+                          
+                          const assessment = user.completedAssessments?.find((a: any) => a.internshipId === internshipId);
+                          
+                          return (
+                            <div key={internshipId} className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                              <div className="flex justify-between items-start mb-2">
+                                <h5 className="font-bold text-slate-900">{internship.title}</h5>
+                                {assessment?.interviewScheduled && (
+                                  <span className="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded-full font-bold">
+                                    Interview Scheduled
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-slate-600 mb-3">{internship.company}</p>
+                              {assessment && (
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-slate-500">Score: {assessment.score}%</span>
+                                  {assessment.interviewScheduled && (
+                                    <Link 
+                                      to={`/interview-details/${internshipId}`}
+                                      className="text-indigo-600 font-medium hover:underline"
+                                    >
+                                      View Details →
+                                    </Link>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {user.appliedInternships.length > 2 && (
+                        <Link to="/internships" className="text-indigo-600 text-sm font-medium mt-2 inline-block">
+                          View all {user.appliedInternships.length} applications →
+                        </Link>
+                      )}
+                    </div>
+                  )}
+
                     {/* Stats */}
                     <div className="grid grid-cols-2 gap-4 mb-8">
                       <div className="text-center p-5 bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 hover:shadow-md transition-all duration-300">
