@@ -22,7 +22,7 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
   ];
 
   const STIPENDS = ["₹2,000 - ₹8,000", "₹2,500 - ₹5,000", "₹3,000 - ₹7,000"];
-  const COMPANY_NAMES = ["Arjuna-ai Solutions", "Internadda Enterprises", "Tech-Nexus Systems"];
+  const COMPANY_NAMES = ["Arjuna-ai Solutions", "Internadda Enterprises", "LAREX Systems"];
 
   const itemIndex = (Number(internship.id) - 1) % 3;
   const selectedImage = CARD_IMAGES[itemIndex];
@@ -30,7 +30,7 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
   const selectedCompanyName = COMPANY_NAMES[itemIndex];
 
   // Deterministic Company Count (stays the same on refresh for this specific card)
-  const staticCompanyCount = 40 + (Number(internship.id) % 11);
+  const staticCompanyCount = 4 + (Number(internship.id) % 6);
   
   const [applications, setApplications] = useState(Math.floor(Math.random() * (150 - 130 + 1)) + 130);
 
