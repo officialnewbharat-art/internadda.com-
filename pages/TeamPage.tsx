@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const TeamPage: React.FC = () => {
-  const teamMembers = [
 const teamMembers = [
+
   {
     id: 1,
     name: 'Lucky Tiwari',
