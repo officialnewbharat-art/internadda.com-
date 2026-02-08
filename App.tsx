@@ -21,6 +21,7 @@ import HiringProcess from "./pages/HiringProcess";
 import AboutUs from "./pages/AboutUs";
 import { User } from "./types";
 import OfferLetterPage from './pages/OfferLetterPage';
+import InterviewDetailsPage from './pages/InterviewDetailsPage';
 
 const ScrollToTop = () => {
   const { pathname, search } = useLocation();
@@ -133,6 +134,7 @@ const App: React.FC = () => {
             <Route path="/test/real/:id" element={user ? <ProfessionalTestEngine /> : <Navigate to="/login" replace />} />
             <Route path="/tests" element={user ? <Tests user={user} /> : <Navigate to="/login" replace />} />
             <Route path="/result/:id" element={user ? <ResultPage user={user} /> : <Navigate to="/login" replace />} />
+            <Route path="/interview-details/:id" element={user ? <InterviewDetailsPage /> : <Navigate to="/login" replace />} />
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
