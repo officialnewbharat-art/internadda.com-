@@ -5,63 +5,63 @@ const SuccessStories: React.FC = () => {
   const stories = [
     {
       id: 1,
-      name: 'Rahul Sharma',
-      college: 'IIT Delhi',
-      role: 'SWE Intern @ Google',
-      image: 'https://picsum.photos/seed/rahul/200',
-      quote: 'Got my Google internship through Internadda. The process was super smooth!',
+      name: 'Aarav Sharma',
+      college: 'BHU',
+      role: 'Software Engineer @ Internadda',
+      image: 'https://iili.io/fmKACQa.jpg',
+      quote: "Internadda changed my life. From test to Internship offer in 3 days.",
       score: 92,
-      timeline: '2 days from test to offer'
+      timeline: '15K'
     },
     {
       id: 2,
-      name: 'Priya Patel',
-      college: 'NIT Trichy',
-      role: 'Product Intern @ Microsoft',
-      image: 'https://picsum.photos/seed/priya/200',
-      quote: 'From test to offer in 3 days! Never seen such an efficient platform.',
+      name: 'Payal Mittal',
+      college: 'Amity University',
+      role: 'HR Manager @ Internadda',
+      image: 'https://iili.io/fmLWXGs.png',
+      quote: "The direct interview process eliminated months of uncertainty.",
       score: 88,
-      timeline: '3 days total process'
+      timeline: '10K'
     },
     {
       id: 3,
-      name: 'Amit Kumar',
-      college: 'BITS Pilani',
-      role: 'Data Science Intern @ Amazon',
-      image: 'https://picsum.photos/seed/amit/200',
-      quote: 'The MSME certification gave me confidence. Legit platform with real opportunities.',
+      name: 'Anurag Tiwari',
+      college: 'Delhi University',
+      role: 'Chief Marketing Officer @ Internadda',
+      image: 'https://iili.io/fmQq6Sp.jpg',
+      quote: "Skill-based assessment got me noticed by the right people.",
       score: 95,
-      timeline: '48 hours process'
+      timeline: '12K'
     },
     {
       id: 4,
-      name: 'Neha Gupta',
-      college: 'Delhi University',
-      role: 'Marketing Intern @ Unacademy',
-      image: 'https://picsum.photos/seed/neha/200',
-      quote: 'As a non-tech student, I found amazing opportunities here. Highly recommended!',
+      name: 'Siddharth Rao',
+      college: 'IP University',
+      role: 'Web Developer @ Internadda',
+      image: 'https://iili.io/fmKMQPS.jpg',
+      quote: "Skill-based assessment got me noticed by the right people.",
       score: 85,
-      timeline: '4 days process'
+      timeline: '7K'
     },
     {
       id: 5,
-      name: 'Siddharth Rao',
-      college: 'IIM Ahmedabad',
-      role: 'Business Analyst Intern @ McKinsey',
-      image: 'https://picsum.photos/seed/siddharth/200',
-      quote: 'Direct interview with the manager made all the difference. No HR rounds!',
-      score: 90,
-      timeline: '3 days process'
+      name: 'Ananya Singh',
+      college: 'SRM University',
+      role: 'UI/UX Intern @ Arjuna-AI',
+      image: 'https://iili.io/fmKMLV2.jpg',
+      quote: "Skill-based assessment got me noticed by the right people.",
+      score: 83,
+      timeline: '6K'
     },
     {
       id: 6,
-      name: 'Ananya Singh',
-      college: 'SRM University',
-      role: 'UI/UX Intern @ Adobe',
-      image: 'https://picsum.photos/seed/ananya/200',
+      name: 'Neha Gupta',
+      college: 'Sharda University',
+      role: 'Product Intern @ LAREX',
+      image: 'https://iili.io/fmK7k6G.jpg',
       quote: 'The certificate and LinkedIn recommendation boosted my profile significantly.',
-      score: 87,
-      timeline: '5 days process'
+      score: 78,
+      timeline: '9K'
     }
   ];
 
@@ -147,7 +147,7 @@ const SuccessStories: React.FC = () => {
                   </div>
                   <div className="text-center p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
                     <div className="text-lg font-bold text-blue-700">{story.timeline}</div>
-                    <div className="text-xs text-blue-600">Process Time</div>
+                    <div className="text-xs text-blue-600">Stipend</div>
                   </div>
                 </div>
               </div>
