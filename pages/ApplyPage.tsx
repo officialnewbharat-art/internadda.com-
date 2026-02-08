@@ -76,10 +76,10 @@ const ApplyPage: React.FC = () => {
             </h3>
             <ul className="space-y-4">
               {[
-                "Government Recognized MSME Certificate",
-                "100% Money Back if not selected",
-                "Professional Training & Live Projects",
-                "Direct Interview with Hiring Managers"
+                "Government-Recognized MSME Certified Organization",
+                "Skill-Based Opportunities — No False Guarantees",
+                "Professional Training with Live Industry Projects",
+                "AI-Based Interviews via Arjuna AI & Verified Hiring Partners"
               ].map((text, i) => (
                 <li key={i} className="flex items-start gap-3 text-slate-300 text-sm font-medium">
                   <div className="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-500" /> {text}
