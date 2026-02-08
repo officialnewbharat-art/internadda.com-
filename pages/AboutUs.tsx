@@ -70,9 +70,9 @@ const teamMembers = [
       name: 'Anurag Tiwari',
       college: 'Delhi University',
       role: 'Chief Marketing Officer @ Internadda',
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
+      image: 'https://iili.io/fmQq6Sp.jpg',
       quote: "Skill-based assessment got me noticed by the right people.",
-      stats: { placedIn: '5 days', salary: '₹20K' }
+      stats: { placedIn: '5 days', salary: '₹12K' }
     }
   ];
 
