@@ -15,10 +15,10 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
   ];
 
   const COMPANY_LOGOS = [
-    "https://iili.io/fbAXw2p.md.png", // Main logo
-    "https://iili.io/fbAXcYB.png",    // Secondary
-    "https://upload.wikimedia.org/wikipedia/commons/c/cd/Facebook_logo_%282019%29.svg", // recognizable placeholder
-    "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"       // recognizable placeholder
+    "https://iili.io/fbAXcYB.png", // Main logo
+    "https://iili.io/fmiM6Dg.png",   
+    "https://iili.io/fbAXw2p.png",  
+    "https://iili.io/fmisLLG.png"
   ];
 
   const STIPENDS = ["₹2,000 - ₹8,000", "₹2,500 - ₹5,000", "₹3,000 - ₹7,000"];
@@ -29,8 +29,9 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
   const selectedStipend = STIPENDS[itemIndex];
   const selectedCompanyName = COMPANY_NAMES[itemIndex];
 
-  // Random Company Generator (20 to 50)
-  const [randomCompanyCount] = useState(Math.floor(Math.random() * (50 - 20 + 1)) + 20);
+  // Deterministic Company Count (stays the same on refresh for this specific card)
+  const staticCompanyCount = 40 + (Number(internship.id) % 11);
+  
   const [applications, setApplications] = useState(Math.floor(Math.random() * (150 - 130 + 1)) + 130);
 
   useEffect(() => {
@@ -66,7 +67,7 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
                 <img key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-contain bg-white border border-slate-100" src={logo} alt="Company" />
               ))}
             </div>
-            <span className="ml-3 text-xs font-bold text-indigo-600">+{randomCompanyCount} more companies</span>
+            <span className="ml-3 text-xs font-bold text-indigo-600">+{staticCompanyCount} more companies</span>
           </div>
         </div>
         
@@ -98,7 +99,7 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
             Apply Now
           </Link>
           <p className="text-[9px] text-center text-slate-400 mt-2 font-medium">
-            Next Batch Starts Soon • 100% Refund Guarantee
+            Next Batch Starts Soon • Direct Selection Process
           </p>
         </div>
       </div>
