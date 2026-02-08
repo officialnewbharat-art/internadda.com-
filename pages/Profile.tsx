@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { UserProfile } from '../types';
+import { MOCK_INTERNSHIPS } from '../constants';
+import { Briefcase, Calendar, CheckCircle2, MessageSquare, Clock, Award, Star, Users, Shield, Trophy } from 'lucide-react';
 
 interface ProfileProps {
   user: UserProfile;
@@ -15,6 +17,7 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
   });
 
   const [profileStrength, setProfileStrength] = useState(0);
+  const [qualifiedAssessments, setQualifiedAssessments] = useState<any[]>([]);
 
   useEffect(() => {
     // Calculate profile strength based on filled fields
@@ -32,6 +35,12 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
     const savedStats = localStorage.getItem('userStats');
     if (savedStats) {
       setStats(JSON.parse(savedStats));
+    }
+
+    // Get qualified assessments (score >= 60%)
+    if (user.completedAssessments) {
+      const qualified = user.completedAssessments.filter((a: any) => a.qualifiedForInterview);
+      setQualifiedAssessments(qualified);
     }
   }, [user]);
 
@@ -67,6 +76,24 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
     const hash = skill.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return levels[hash % 4];
   };
+
+  const getAppliedInternships = () => {
+    if (!user.appliedInternships || user.appliedInternships.length === 0) {
+      return [];
+    }
+    
+    return user.appliedInternships.map(id => {
+      const internship = MOCK_INTERNSHIPS.find(i => i.id === id);
+      const assessment = user.completedAssessments?.find((a: any) => a.internshipId === id);
+      
+      return {
+        ...internship,
+        assessment
+      };
+    }).filter(item => item !== undefined);
+  };
+
+  const appliedInternships = getAppliedInternships();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -186,39 +213,31 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
                       </div>
                     )}
 
-
-                  
-                  {/* Applied Internships */}
-                  {user.appliedInternships && user.appliedInternships.length > 0 && (
-                    <div className="mb-8">
-                      <h4 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                        <Briefcase size={20} className="text-indigo-600" />
-                        Applied Internships ({user.appliedInternships.length})
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {user.appliedInternships.slice(0, 2).map((internshipId: string) => {
-                          const internship = MOCK_INTERNSHIPS.find(i => i.id === internshipId);
-                          if (!internship) return null;
-                          
-                          const assessment = user.completedAssessments?.find((a: any) => a.internshipId === internshipId);
-                          
-                          return (
-                            <div key={internshipId} className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                    {/* Applied Internships */}
+                    {appliedInternships.length > 0 && (
+                      <div className="mb-8">
+                        <h4 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                          <Briefcase size={20} className="text-indigo-600" />
+                          Applied Internships ({appliedInternships.length})
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {appliedInternships.slice(0, 2).map((internship: any, index: number) => (
+                            <div key={index} className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-shadow">
                               <div className="flex justify-between items-start mb-2">
                                 <h5 className="font-bold text-slate-900">{internship.title}</h5>
-                                {assessment?.interviewScheduled && (
+                                {internship.assessment?.qualifiedForInterview && (
                                   <span className="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded-full font-bold">
-                                    Interview Scheduled
+                                    Interview Qualified
                                   </span>
                                 )}
                               </div>
                               <p className="text-sm text-slate-600 mb-3">{internship.company}</p>
-                              {assessment && (
+                              {internship.assessment && (
                                 <div className="flex items-center justify-between text-sm">
-                                  <span className="text-slate-500">Score: {assessment.score}%</span>
-                                  {assessment.interviewScheduled && (
+                                  <span className="text-slate-500">Score: {internship.assessment.score}%</span>
+                                  {internship.assessment.qualifiedForInterview && (
                                     <Link 
-                                      to={`/interview-details/${internshipId}`}
+                                      to={`/test/real/${internship.id}`}
                                       className="text-indigo-600 font-medium hover:underline"
                                     >
                                       View Details →
@@ -227,25 +246,83 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
                                 </div>
                               )}
                             </div>
-                          );
-                        })}
+                          ))}
+                        </div>
+                        {appliedInternships.length > 2 && (
+                          <Link to="/internships" className="text-indigo-600 text-sm font-medium mt-2 inline-block">
+                            View all {appliedInternships.length} applications →
+                          </Link>
+                        )}
                       </div>
-                      {user.appliedInternships.length > 2 && (
-                        <Link to="/internships" className="text-indigo-600 text-sm font-medium mt-2 inline-block">
-                          View all {user.appliedInternships.length} applications →
-                        </Link>
-                      )}
-                    </div>
-                  )}
+                    )}
+
+                    {/* Interview Eligibility Status */}
+                    {qualifiedAssessments.length > 0 && (
+                      <div className="mb-8">
+                        <h4 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                          <Calendar size={20} className="text-emerald-600" />
+                          Interview Qualified Positions
+                        </h4>
+                        <div className="space-y-4">
+                          {qualifiedAssessments.map((assessment: any, index: number) => (
+                            <div key={index} className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100 rounded-xl p-5">
+                              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                  <h5 className="font-bold text-slate-900">{assessment.internshipTitle}</h5>
+                                  <p className="text-sm text-slate-600">{assessment.company}</p>
+                                  <div className="flex items-center gap-4 mt-2">
+                                    <span className="text-sm font-medium text-slate-700">
+                                      Score: <span className="font-bold text-emerald-600">{assessment.score}%</span>
+                                    </span>
+                                    <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-bold">
+                                      Interview Eligible
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm text-slate-500">Assessment Date</p>
+                                  <p className="text-sm font-medium text-slate-700">
+                                    {new Date(assessment.date).toLocaleDateString('en-IN')}
+                                  </p>
+                                  <div className="mt-2 text-xs text-slate-500">
+                                    Awaiting interview schedule
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Status Message */}
+                              <div className="mt-4 pt-4 border-t border-emerald-100">
+                                <div className="flex items-start gap-3">
+                                  <MessageSquare size={16} className="text-blue-500 mt-0.5" />
+                                  <div className="text-sm text-slate-700">
+                                    <p>
+                                      <strong>You will receive an email</strong> from our team within 24-48 hours 
+                                      to schedule your interview with <strong>{assessment.company}</strong>.
+                                    </p>
+                                    <p className="text-xs text-slate-500 mt-1">
+                                      Check your email at <span className="font-medium">{user.email}</span>
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Stats */}
                     <div className="grid grid-cols-2 gap-4 mb-8">
                       <div className="text-center p-5 bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 hover:shadow-md transition-all duration-300">
-                        <div className="text-3xl font-bold text-indigo-600">{stats.testsCompleted}</div>
+                        <div className="text-3xl font-bold text-indigo-600">
+                          {user.completedAssessments?.length || 0}
+                        </div>
                         <div className="text-sm text-slate-600">Tests Taken</div>
                       </div>
                       <div className="text-center p-5 bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 hover:shadow-md transition-all duration-300">
-                        <div className="text-3xl font-bold text-emerald-600">{stats.applicationsSubmitted}</div>
+                        <div className="text-3xl font-bold text-emerald-600">
+                          {appliedInternships.length}
+                        </div>
                         <div className="text-sm text-slate-600">Applications</div>
                       </div>
                     </div>
@@ -275,7 +352,7 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
 
           {/* Right Column - Profile Tips & Trust Indicators */}
           <div className="space-y-6">
-            {/* Profile Tips (Replaced Quick Actions) */}
+            {/* Profile Tips */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
               <h3 className="font-semibold text-slate-900 mb-4 text-lg">Profile Tips</h3>
               <ul className="space-y-4">
@@ -293,11 +370,16 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
                   <div className="w-2 h-2 bg-blue-400 rounded-full mt-1.5 shrink-0"></div>
                   <p>Keep your contact information updated to ensure you don't miss interview calls.</p>
                 </li>
-
                 <li className="flex items-start gap-3 text-sm text-slate-600">
                   <div className="w-2 h-2 bg-indigo-400 rounded-full mt-1.5 shrink-0"></div>
                   <p>Verify your skills by taking the internal Internadda assessments.</p>
                 </li>
+                {qualifiedAssessments.length > 0 && (
+                  <li className="flex items-start gap-3 text-sm text-slate-600">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full mt-1.5 shrink-0"></div>
+                    <p>You've qualified for interviews! Check your email regularly for scheduling details.</p>
+                  </li>
+                )}
               </ul>
               
               <div className="mt-6 pt-6 border-t border-slate-100">
@@ -306,6 +388,46 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
                 </Link>
               </div>
             </div>
+
+            {/* Interview Status Card */}
+            {qualifiedAssessments.length > 0 && (
+              <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100 rounded-2xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <Trophy className="text-emerald-600" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900">Interview Qualified! 🎉</h3>
+                    <p className="text-sm text-slate-600">You've cleared the assessment round</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  {qualifiedAssessments.map((assessment: any, idx: number) => (
+                    <div key={idx} className="bg-white rounded-xl p-4 border border-emerald-100">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-bold text-slate-900">{assessment.internshipTitle}</h4>
+                          <p className="text-sm text-slate-600">{assessment.company}</p>
+                        </div>
+                        <span className="bg-emerald-100 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold">
+                          Score: {assessment.score}%
+                        </span>
+                      </div>
+                      
+                      <div className="mt-4 flex items-center gap-2 text-sm text-slate-600">
+                        <Clock size={14} />
+                        <span>Interview email will be sent within 24-48 hours</span>
+                      </div>
+                      
+                      <div className="mt-3 text-xs text-slate-500 bg-slate-50 p-3 rounded-lg">
+                        💡 <strong>Next Step:</strong> Check your email for interview scheduling details from hiring@arjunai.com
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Trust Indicators */}
             <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl text-white p-6">
@@ -345,6 +467,68 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
                     <div className="text-sm text-slate-300">Trusted partners worldwide</div>
                   </div>
                 </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="text-2xl">👨‍💼</div>
+                  <div>
+                    <div className="font-medium">Personal Coordination</div>
+                    <div className="text-sm text-slate-300">We personally schedule your interviews</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Achievements */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+              <h3 className="font-semibold text-slate-900 mb-6">Your Achievements</h3>
+              <div className="space-y-4">
+                {user.completedAssessments && user.completedAssessments.length > 0 && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <Award className="text-indigo-600" size={20} />
+                    </div>
+                    <div>
+                      <div className="font-medium text-slate-900">Assessment Master</div>
+                      <div className="text-sm text-slate-500">{user.completedAssessments.length} tests completed</div>
+                    </div>
+                  </div>
+                )}
+
+                {qualifiedAssessments.length > 0 && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                      <Star className="text-emerald-600" size={20} />
+                    </div>
+                    <div>
+                      <div className="font-medium text-slate-900">Interview Qualified</div>
+                      <div className="text-sm text-slate-500">{qualifiedAssessments.length} positions secured</div>
+                    </div>
+                  </div>
+                )}
+
+                {appliedInternships.length >= 3 && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                      <Users className="text-amber-600" size={20} />
+                    </div>
+                    <div>
+                      <div className="font-medium text-slate-900">Active Applicant</div>
+                      <div className="text-sm text-slate-500">{appliedInternships.length} applications submitted</div>
+                    </div>
+                  </div>
+                )}
+
+                {profileStrength === 100 && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                      <Shield className="text-purple-600" size={20} />
+                    </div>
+                    <div>
+                      <div className="font-medium text-slate-900">Profile Complete</div>
+                      <div className="text-sm text-slate-500">100% profile strength achieved</div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -352,16 +536,53 @@ const Profile: React.FC<ProfileProps> = ({ user, setUser }) => {
 
         {/* CTA Section */}
         <div className="mt-12 text-center">
-          <p className="text-slate-600 mb-8 text-lg">
-            Start your journey today. It only takes one application to change everything.
-          </p>
-          <Link 
-            to="/internships"
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-10 py-5 rounded-2xl font-bold text-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300"
+          {qualifiedAssessments.length > 0 ? (
+            <>
+              <div className="bg-gradient-to-r from-emerald-500 to-green-500 rounded-2xl p-8 mb-8 text-white">
+                <h3 className="text-2xl font-bold mb-4">Congratulations on Your Achievement! 🎉</h3>
+                <p className="text-lg mb-6 max-w-2xl mx-auto">
+                  You've qualified for interviews with our partner companies. Our team will contact you shortly.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link 
+                    to="/internships"
+                    className="bg-white text-emerald-700 px-8 py-3 rounded-xl font-bold hover:bg-emerald-50 transition-colors"
+                  >
+                    Browse More Opportunities
+                  </Link>
+                  <button className="bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold hover:bg-emerald-800 transition-colors">
+                    Check Your Email
+                  </button>
+                </div>
+              </div>
+              <p className="text-slate-600 mb-8 text-lg">
+                Keep an eye on your inbox at <span className="font-bold">{user.email}</span> for interview scheduling details.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-slate-600 mb-8 text-lg">
+                Start your journey today. It only takes one application to change everything.
+              </p>
+              <Link 
+                to="/internships"
+                className="inline-flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-10 py-5 rounded-2xl font-bold text-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300"
+              >
+                <span>💼 Browse Open Internships</span>
+                <span className="text-2xl animate-pulse">→</span>
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Logout Button */}
+        <div className="mt-12 text-center">
+          <button
+            onClick={handleLogout}
+            className="text-red-600 hover:text-red-700 text-sm font-medium hover:underline transition-colors"
           >
-            <span>💼 Browse Open Internships</span>
-            <span className="text-2xl animate-pulse">→</span>
-          </Link>
+            Logout from your account
+          </button>
         </div>
       </div>
     </div>
