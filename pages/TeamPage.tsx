@@ -3,94 +3,95 @@ import { Link } from 'react-router-dom';
 
 const TeamPage: React.FC = () => {
   const teamMembers = [
-    {
-      id: 1,
-      name: 'Rahul Sharma',
-      role: 'CEO & Founder',
-      education: 'Ex-Google, IIT Delhi',
-      image: 'https://picsum.photos/seed/rahulceo/400',
-      bio: 'Passionate about bridging the gap between education and industry. 10+ years in tech and education.',
-      linkedin: '#',
-      twitter: '#',
-      expertise: ['EdTech', 'Product Strategy', 'Leadership']
-    },
-    {
-      id: 2,
-      name: 'Priya Patel',
-      role: 'CTO',
-      education: 'Ex-Microsoft, BITS Pilani',
-      image: 'https://picsum.photos/seed/priyacto/400',
-      bio: 'Building scalable tech solutions for student success. Full-stack developer turned tech lead.',
-      linkedin: '#',
-      twitter: '#',
-      expertise: ['Full-Stack', 'System Architecture', 'AI/ML']
-    },
-    {
-      id: 3,
-      name: 'Amit Kumar',
-      role: 'Head of Placements',
-      education: 'Ex-Amazon, IIM Ahmedabad',
-      image: 'https://picsum.photos/seed/amithr/400',
-      bio: 'Connecting talent with the right opportunities. 8+ years in HR and talent acquisition.',
-      linkedin: '#',
-      twitter: '#',
-      expertise: ['Talent Acquisition', 'HR Tech', 'Corporate Relations']
-    },
-    {
-      id: 4,
-      name: 'Neha Gupta',
-      role: 'Student Success Head',
-      education: 'Ex-Unacademy, Delhi University',
-      image: 'https://picsum.photos/seed/nehass/400',
-      bio: 'Ensuring every student gets the support they need. Education consultant turned student success specialist.',
-      linkedin: '#',
-      twitter: '#',
-      expertise: ['Student Counseling', 'Career Guidance', 'Mentorship']
-    },
-    {
-      id: 5,
-      name: 'Rajesh Nair',
-      role: 'Lead Developer',
-      education: 'Ex-Flipkart, NIT Surathkal',
-      image: 'https://picsum.photos/seed/rajeshdev/400',
-      bio: 'Building the future of internship assessments. Specialized in real-time systems and security.',
-      linkedin: '#',
-      twitter: '#',
-      expertise: ['Backend', 'Security', 'Real-time Systems']
-    },
-    {
-      id: 6,
-      name: 'Sneha Reddy',
-      role: 'Product Designer',
-      education: 'Ex-Razorpay, NIFT Delhi',
-      image: 'https://picsum.photos/seed/snehadesign/400',
-      bio: 'Creating beautiful, intuitive experiences for students. UI/UX designer with a passion for education.',
-      linkedin: '#',
-      twitter: '#',
-      expertise: ['UI/UX Design', 'User Research', 'Design Systems']
-    },
-    {
-      id: 7,
-      name: 'Vikram Singh',
-      role: 'Marketing Head',
-      education: 'Ex-Byju\'s, Symbiosis Pune',
-      image: 'https://picsum.photos/seed/vikrammarketing/400',
-      bio: 'Spreading the word about quality internships. Digital marketing expert with EdTech experience.',
-      linkedin: '#',
-      twitter: '#',
-      expertise: ['Digital Marketing', 'Growth', 'Brand Strategy']
-    },
-    {
-      id: 8,
-      name: 'Ananya Das',
-      role: 'Content Strategist',
-      education: 'Ex-Times of India, JNU',
-      image: 'https://picsum.photos/seed/ananyacontent/400',
-      bio: 'Crafting compelling stories about student success. Journalist turned content strategist.',
-      linkedin: '#',
-      twitter: '#',
-      expertise: ['Content Strategy', 'Storytelling', 'SEO']
-    }
+const teamMembers = [
+  {
+    id: 1,
+    name: 'Lucky Tiwari',
+    role: 'Founder & CEO',
+    education: 'Entrepreneur | EdTech & AI',
+    image: 'https://iili.io/fbR5Kkx.png',
+    bio: 'Building InternAdda to bridge the gap between students and real-world industry experience.',
+    linkedin: '#',
+    twitter: '#',
+    expertise: ['EdTech', 'AI Strategy', 'Leadership', 'Startup Growth']
+  },
+  {
+    id: 2,
+    name: 'Vikash Yadav',
+    role: 'Co-Founder & PR Head',
+    education: 'Public Relations & Brand Communication',
+    image: 'https://iili.io/fbRADV1.png',
+    bio: 'Leads partnerships, outreach, and brand positioning for InternAdda.',
+    linkedin: '#',
+    twitter: '#',
+    expertise: ['Public Relations', 'Brand Strategy', 'Partnerships', 'Community Building']
+  },
+  {
+    id: 3,
+    name: 'Sumit Pandey',
+    role: 'CTO',
+    education: 'Full Stack Engineer | System Architect',
+    image: 'https://iili.io/fbRAyla.png',
+    bio: 'Driving the technical vision and building scalable platforms for students.',
+    linkedin: '#',
+    twitter: '#',
+    expertise: ['Full Stack', 'System Architecture', 'AI/ML', 'Cloud']
+  },
+  {
+    id: 4,
+    name: 'Pranjal Singh',
+    role: 'COO',
+    education: 'Operations & Growth Management',
+   image: 'https://iili.io/fbRRJHv.png',
+    bio: 'Oversees operations, execution, and scaling of InternAdda.',
+    linkedin: '#',
+    twitter: '#',
+    expertise: ['Operations', 'Process Building', 'Business Strategy', 'Scaling']
+  },
+  {
+    id: 5,
+    name: 'Aarav Sharma',
+    role: 'Software Engineer @ Internadda',
+    education: 'BHU',
+    image: 'https://iili.io/fmKACQa.jpg',
+    bio: 'Internadda changed my life. From test to internship offer in just 3 days.',
+    linkedin: '#',
+    twitter: '#',
+    expertise: ['Software Development', 'Problem Solving', 'Web Technologies']
+  },
+  {
+    id: 6,
+    name: 'Payal Mittal',
+    role: 'HR Manager @ Internadda',
+    education: 'Amity University',
+    image: 'https://iili.io/fmLWXGs.png',
+    bio: 'The direct interview process eliminated months of uncertainty.',
+    linkedin: '#',
+    twitter: '#',
+    expertise: ['Human Resources', 'Recruitment', 'Talent Management']
+  },
+  {
+    id: 7,
+    name: 'Anurag Tiwari',
+    role: 'Chief Marketing Officer @ Internadda',
+    education: 'Delhi University',
+    image: 'https://iili.io/fmQq6Sp.jpg',
+    bio: 'Skill-based assessment got me noticed by the right people.',
+    linkedin: '#',
+    twitter: '#',
+    expertise: ['Marketing Strategy', 'Brand Growth', 'Digital Campaigns']
+  },
+  {
+    id: 8,
+    name: 'Siddharth Rao',
+    role: 'Web Developer @ Internadda',
+    education: 'IP University',
+    image: 'https://iili.io/fmKMQPS.jpg',
+    bio: 'Skill-based assessment got me noticed by the right people.',
+    linkedin: '#',
+    twitter: '#',
+    expertise: ['Web Development', 'Frontend', 'UI Integration']
+  }
   ];
 
   const advisors = [
