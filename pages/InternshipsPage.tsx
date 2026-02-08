@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import InternshipCard from '../components/InternshipCard';
 import { MOCK_INTERNSHIPS } from '../constants';
-import { Search, RotateCcw, ShieldCheck, Award, Zap, BadgeCheck } from 'lucide-react';
+import { Search, RotateCcw, ShieldCheck, Award, Zap, BadgeCheck, ChevronDown } from 'lucide-react';
 
 const InternshipsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedType, setSelectedType] = useState('All');
   const [filteredInternships, setFilteredInternships] = useState(MOCK_INTERNSHIPS);
+  const [visibleCount, setVisibleCount] = useState(6); // State to handle load more logic
 
   const categories = ['All', 'Python', 'Web Development', 'Data Science', 'Marketing', 'Design', 'Finance'];
   const types = ['All', 'Remote', 'On-site', 'Hybrid'];
@@ -31,7 +32,12 @@ const InternshipsPage: React.FC = () => {
     }
 
     setFilteredInternships(results);
+    setVisibleCount(6); // Reset count when filters change
   }, [search, selectedCategory, selectedType]);
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 6);
+  };
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -74,7 +80,7 @@ const InternshipsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Simplified Filters - Removed Stipend */}
+      {/* Simplified Filters */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20">
         <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8">
           <div className="flex flex-col lg:flex-row gap-8 items-center justify-between">
@@ -134,11 +140,26 @@ const InternshipsPage: React.FC = () => {
         </div>
 
         {filteredInternships.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredInternships.map(internship => (
-              <InternshipCard key={internship.id} internship={internship} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredInternships.slice(0, visibleCount).map(internship => (
+                <InternshipCard key={internship.id} internship={internship} />
+              ))}
+            </div>
+            
+            {/* Load More Button */}
+            {visibleCount < filteredInternships.length && (
+              <div className="mt-16 flex justify-center">
+                <button 
+                  onClick={handleLoadMore}
+                  className="group flex items-center gap-3 px-10 py-4 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl font-black hover:border-indigo-600 hover:text-indigo-600 transition-all shadow-md active:scale-95"
+                >
+                  Load More Internships
+                  <ChevronDown size={20} className="group-hover:translate-y-1 transition-transform" />
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-20 bg-white rounded-[40px] border-2 border-dashed border-slate-200">
             <h3 className="text-xl font-bold text-slate-400">No matching internships found.</h3>
