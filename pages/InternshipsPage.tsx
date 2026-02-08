@@ -64,10 +64,10 @@ const InternshipsPage: React.FC = () => {
                 <ShieldCheck className="text-emerald-500" size={16} /> MSME CERTIFIED
               </div>
               <div className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold text-slate-300">
-                <Award className="text-amber-500" size={16} /> GUARANTEED INTERNSHIP
+                <Award className="text-amber-500" size={16} /> Professional INTERNSHIP
               </div>
               <div className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold text-slate-300">
-                <Zap className="text-indigo-500" size={16} /> 100% REFUND POLICY
+                <Zap className="text-indigo-500" size={16} /> 100% Automatic AI-powered
               </div>
             </div>
           </div>
