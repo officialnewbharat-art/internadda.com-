@@ -44,7 +44,7 @@ const InternshipsPage: React.FC = () => {
               Verified <span className="text-indigo-500">Professional</span> Internships
             </h1>
             <p className="text-lg text-slate-400 mb-10 max-w-2xl mx-auto font-medium">
-              Join 7,000+ students in our guaranteed internship program. 
+              Join 7,000+ students in our Dedicated internship program. 
               Get certified by MSME recognized partners.
             </p>
             
