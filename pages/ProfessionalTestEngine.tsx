@@ -13,6 +13,119 @@ const ProfessionalTestEngine: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showInstructions, setShowInstructions] = useState(true);
 
+
+
+  const sendInterviewEmail = async (user: any, internship: any, score: number) => {
+  // This would integrate with your email service (like SendGrid, Resend, etc.)
+  // For demo purposes, we'll simulate with localStorage
+  
+  const interviewData = {
+    internshipId: internship.id,
+    internshipTitle: internship.title,
+    company: internship.company,
+    score: score,
+    interviewDate: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(), // 48 hours from now
+    interviewLink: `https://meet.google.com/${Math.random().toString(36).substring(7)}`,
+    interviewer: "Mr. Arjun Sharma",
+    companyEmail: "hiring@arjunai.com",
+    status: "scheduled"
+  };
+
+  // Store in localStorage for demo
+  localStorage.setItem(`interview_${internship.id}`, JSON.stringify(interviewData));
+  
+  // Update user's completed assessments
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const updatedAssessments = [
+    ...(userData.completedAssessments || []),
+    {
+      internshipId: internship.id,
+      internshipTitle: internship.title,
+      score: score,
+      passed: score >= 50,
+      date: new Date().toISOString(),
+      interviewScheduled: score >= 60,
+      interviewDetails: score >= 60 ? {
+        date: interviewData.interviewDate,
+        time: "10:00 AM - 11:00 AM",
+        link: interviewData.interviewLink,
+        company: internship.company,
+        interviewer: "Mr. Arjun Sharma (CTO)"
+      } : undefined
+    }
+  ];
+  
+  userData.completedAssessments = updatedAssessments;
+  localStorage.setItem("user", JSON.stringify(userData));
+  
+  // Simulate email sending
+  console.log(`Email sent to ${user.email} with interview details`);
+  
+  return interviewData;
+};
+
+// In the handleSubmit function, add this logic after calculating score:
+if (score >= 60) {
+  const interviewData = sendInterviewEmail(user, internship, score);
+  
+  // Update the result display section for passed candidates:
+  // Replace the existing passed section with:
+  if (passed) {
+    const hasInterview = score >= 60;
+    
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full">
+          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-slate-100 p-10 text-center">
+            <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-8 ${
+              hasInterview ? 'bg-gradient-to-r from-emerald-100 to-green-100' : 'bg-emerald-100'
+            }`}>
+              {hasInterview ? '🎉' : '🏆'}
+            </div>
+            
+            <h2 className="text-3xl font-black text-slate-900 mb-2">
+              {hasInterview ? 'Congratulations! 🎊' : 'Well Done!'}
+            </h2>
+            
+            {hasInterview ? (
+              <>
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-sm mb-8">
+                  {internship?.category} Professional Assessment - PASSED WITH FLYING COLORS!
+                </p>
+                  
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-3xl py-10 mb-8 border border-emerald-100">
+                  <div className="text-7xl font-black mb-4 text-emerald-600">{score}%</div>
+                  <p className="text-emerald-700 font-medium">Outstanding Performance!</p>
+                  <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-emerald-500 to-green-500 text-white">
+                    <CheckCircle2 size={16} />
+                    Interview Scheduled with {internship?.company}
+                  </div>
+                </div>
+
+                <div className="text-slate-600 mb-10 leading-relaxed font-medium space-y-4">
+                  <p>🎯 <strong>You've qualified for direct interview!</strong></p>
+                  <p>📧 <strong>Interview details will be emailed to you shortly</strong> at {user.email}</p>
+                  <p>⏰ <strong>Expected timeline:</strong> Interview link within 24-48 hours</p>
+                  <p>👨‍💼 <strong>Interviewer:</strong> Senior team from {internship?.company}</p>
+                </div>
+
+                <div className="bg-blue-50 rounded-2xl p-6 mb-8 border border-blue-100">
+                  <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2 justify-center">
+                    <MessageSquare size={20} />
+                    What happens next?
+                  </h4>
+                  <div className="text-sm text-blue-800 space-y-2">
+                    <p>1. You'll receive a confirmation email from hiring@arjunai.com</p>
+                    <p>2. Interview will be scheduled based on your availability</p>
+                    <p>3. Prepare your portfolio and previous work samples</p>
+                    <p>4. Check your spam folder if you don't see the email</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // ... existing passed (50-59%) content
+            )}
+
   // Enhanced Tough Questions Database (25 questions per category)
   const TOUGH_QUESTION_BANK: Record<string, any[]> = {
     "Python": [
