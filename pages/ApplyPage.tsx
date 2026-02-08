@@ -76,10 +76,10 @@ const ApplyPage: React.FC = () => {
             </h3>
             <ul className="space-y-4">
               {[
-                "Government-Recognized MSME Certified Organization",
+                "Government-Recognized MSME Organization",
                 "Skill-Based Opportunities — No False Guarantees",
                 "Professional Training with Live Industry Projects",
-                "AI-Based Interviews via Arjuna AI & Verified Hiring Partners"
+                "AI-Based Interviews & Verified Hiring Partners"
               ].map((text, i) => (
                 <li key={i} className="flex items-start gap-3 text-slate-300 text-sm font-medium">
                   <div className="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-500" /> {text}
@@ -91,7 +91,7 @@ const ApplyPage: React.FC = () => {
                 <p className="text-xs font-bold text-slate-500 uppercase">One-time Enrollment Fee</p>
                 <p className="text-3xl font-black">₹199</p>
               </div>
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/MSME_Logo.png/640px-MSME_Logo.png" className="h-12 opacity-80 grayscale invert" alt="MSME" />
+              <img src="https://iili.io/fmsf6yF.md.png" className="h-12 opacity-80 grayscale invert" alt="MSME" />
             </div>
           </div>
 
