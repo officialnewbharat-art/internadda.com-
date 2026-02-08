@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
   const navLinks = [
     { name: "Home", path: "/", icon: HomeIcon },
     { name: "Internships", path: "/internships", icon: Briefcase },
-    { name: "Courses", path: "/courses", icon: BookOpen },
+    { name: "Courses", path: "https://courses.internadda.com/", icon: BookOpen, isExternal: true },
     { name: "About Us", path: "/about", icon: Info },
   ];
 
@@ -72,15 +72,27 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
 
           <nav className="hidden lg:flex items-center space-x-8">
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`text-sm font-bold transition-all hover:text-indigo-600 relative py-2 ${
-                  isActive(link.path) ? "text-indigo-600 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-indigo-600" : "text-slate-600"
-                }`}
-              >
-                {link.name}
-              </Link>
+              link.isExternal ? (
+                <a
+                  key={link.name}
+                  href={link.path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-bold text-slate-600 transition-all hover:text-indigo-600 py-2"
+                >
+                  {link.name}
+                </a>
+              ) : (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className={`text-sm font-bold transition-all hover:text-indigo-600 relative py-2 ${
+                    isActive(link.path) ? "text-indigo-600 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-indigo-600" : "text-slate-600"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              )
             ))}
           </nav>
 
@@ -103,7 +115,6 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
 
                 {isProfileOpen && (
                   <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-[110] animate-in fade-in slide-in-from-top-2 duration-200">
-                    {/* Dashboard Link Removed */}
                     <Link to="/profile" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors">
                       <UserIcon size={18} className="text-indigo-600" /> View Profile
                     </Link>
@@ -161,20 +172,37 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
           <div className="flex-1 overflow-y-auto py-4">
             <div className="px-4 space-y-1">
               {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between p-4 rounded-xl transition-all ${
-                    isActive(link.path) ? "bg-indigo-50 text-indigo-600 shadow-sm" : "text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <link.icon className="w-5 h-5" />
-                    <span className="font-bold text-sm">{link.name}</span>
-                  </div>
-                  <ChevronRight className={`w-4 h-4 ${isActive(link.path) ? 'translate-x-1' : ''}`} />
-                </Link>
+                link.isExternal ? (
+                  <a
+                    key={link.name}
+                    href={link.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between p-4 rounded-xl transition-all text-slate-600 hover:bg-slate-50"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <link.icon className="w-5 h-5" />
+                      <span className="font-bold text-sm">{link.name}</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4" />
+                  </a>
+                ) : (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center justify-between p-4 rounded-xl transition-all ${
+                      isActive(link.path) ? "bg-indigo-50 text-indigo-600 shadow-sm" : "text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <link.icon className="w-5 h-5" />
+                      <span className="font-bold text-sm">{link.name}</span>
+                    </div>
+                    <ChevronRight className={`w-4 h-4 ${isActive(link.path) ? 'translate-x-1' : ''}`} />
+                  </Link>
+                )
               ))}
             </div>
           </div>
