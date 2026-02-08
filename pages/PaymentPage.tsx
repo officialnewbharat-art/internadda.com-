@@ -1,13 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShieldCheck, Loader2, Lock, CheckCircle, Star, Award, Building2, UserCheck, Shield, Zap, Clock, BadgeCheck, IndianRupee, MessageSquare } from 'lucide-react';
+import { 
+  ShieldCheck, 
+  Loader2, 
+  Lock, 
+  CheckCircle, 
+  Award, 
+  Building2, 
+  Shield, 
+  Zap, 
+  Clock, 
+  Users, 
+  BadgeCheck, 
+  IndianRupee, 
+  MessageSquare 
+} from 'lucide-react';
 import { MOCK_INTERNSHIPS } from '../constants';
 
 const PaymentPage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const internship = MOCK_INTERNSHIPS.find(i => i.id === id) || MOCK_INTERNSHIPS[0];
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Safety check for internship data
+  const internship = MOCK_INTERNSHIPS.find(i => i.id === id) || MOCK_INTERNSHIPS[0];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const initiatePayment = () => {
     setIsProcessing(true);
@@ -30,6 +50,10 @@ const PaymentPage: React.FC = () => {
     { name: "Sahil M.", text: "Smooth onboarding process. Received my schedule within the promised timeline." },
     { name: "Priya K.", text: "Highly professional environment. The certification adds real value to the resume." }
   ];
+
+  if (!internship) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12 px-4">
