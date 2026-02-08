@@ -1,30 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, BookOpen } from 'lucide-react';
+import { Clock, BookOpen, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { MOCK_INTERNSHIPS, CATEGORY_QUESTIONS } from '../constants';
 
 const TestEngine: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  const questions = [
-    { id: '1', text: 'What is a variable in programming?', options: ['A storage location', 'A function', 'A loop', 'A condition'], correctAnswer: 0 },
-    { id: '2', text: 'Which language is used for web styling?', options: ['HTML', 'CSS', 'JavaScript', 'Python'], correctAnswer: 1 },
-    { id: '3', text: 'What does HTML stand for?', options: ['Hyper Text Markup Language', 'High Tech Modern Language', 'Hyper Transfer Markup Language', 'Home Tool Markup Language'], correctAnswer: 0 },
-  ];
+  // Find internship and category-specific questions
+  const internship = MOCK_INTERNSHIPS.find(i => i.id === id);
+  const questions = CATEGORY_QUESTIONS[internship?.category || "Web Development"] || [];
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>(Array(questions.length).fill(-1));
-  const [timeLeft, setTimeLeft] = useState(10 * 60); // 10 minutes for practice
+  const [timeLeft, setTimeLeft] = useState(20 * 60); // 20 minutes for the challenge
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
 
   useEffect(() => {
+    if (questions.length === 0) return;
+    
     const timer = setInterval(() => {
-      setTimeLeft(prev => prev <= 0 ? 0 : prev - 1);
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          handleSubmit();
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [questions]);
 
   const handleSubmit = () => {
     let correct = 0;
@@ -34,28 +41,38 @@ const TestEngine: React.FC = () => {
     const finalScore = Math.round((correct / questions.length) * 100);
     setScore(finalScore);
     setIsSubmitted(true);
+    window.scrollTo(0, 0);
   };
 
   if (isSubmitted) {
+    const passed = score >= 50;
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden text-center p-8">
-            <div className="w-16 h-16 mx-auto bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mb-6">
-              <BookOpen size={30} className="text-blue-600" />
+      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6">
+        <div className="max-w-xl w-full">
+          <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border border-slate-100 p-10 text-center">
+            <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-8 ${passed ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+              {passed ? <CheckCircle2 size={48} /> : <AlertCircle size={48} />}
             </div>
             
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">Practice Test Complete</h2>
-            <div className="text-4xl font-black text-slate-900 mb-2">{score}%</div>
-            <p className="text-slate-600 mb-6">
-              You scored {score}% on the practice test.
-            </p>
+            <h2 className="text-3xl font-black text-slate-900 mb-2">Practice Results</h2>
+            <p className="text-slate-500 font-bold uppercase tracking-widest text-sm mb-8">{internship?.category} Assessment</p>
+            
+            <div className="bg-slate-50 rounded-3xl py-10 mb-8 border border-slate-100">
+              <div className="text-7xl font-black text-slate-900">{score}%</div>
+              <p className="text-slate-500 mt-2 font-medium">Practice Score</p>
+            </div>
+
+            <div className="text-slate-600 mb-10 leading-relaxed font-medium">
+              {passed 
+                ? "Excellent! You've managed to tackle these tough questions. You're ready for the real certification test." 
+                : "These questions were designed to be extremely difficult. Keep practicing to reach the 50% threshold for the real test."}
+            </div>
             
             <button
               onClick={() => navigate(`/internship/${id}`)}
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-bold hover:shadow-lg transition-all"
+              className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-xl shadow-slate-200"
             >
-              Go Back to Internship
+              Back to Internship <ArrowRight size={20} />
             </button>
           </div>
         </div>
@@ -64,90 +81,107 @@ const TestEngine: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex items-center justify-center p-4">
-      <div className="max-w-3xl w-full">
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
-            <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-xl font-bold">Practice Test</h2>
-                <p className="text-blue-100">Free trial • No payment required</p>
-              </div>
-              <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-lg">
-                <Clock size={18} />
-                <span className="font-mono font-bold">{Math.floor(timeLeft/60)}:{String(timeLeft%60).padStart(2,'0')}</span>
-              </div>
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col">
+      {/* Test Header */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto px-6 py-5 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+              <BookOpen size={24} />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-slate-900 leading-none">{internship?.category} Practice</h2>
+              <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Advanced Module</span>
+            </div>
+          </div>
+          
+          <div className={`flex items-center gap-3 px-6 py-3 rounded-2xl border-2 font-mono text-xl font-black transition-all ${timeLeft < 180 ? 'bg-red-50 border-red-200 text-red-600 animate-pulse' : 'bg-slate-50 border-slate-100 text-slate-700'}`}>
+            <Clock size={20} />
+            <span>{Math.floor(timeLeft/60)}:{String(timeLeft%60).padStart(2,'0')}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="max-w-4xl w-full">
+          {/* Progress Bar */}
+          <div className="mb-8 flex items-center gap-4">
+            <div className="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-indigo-600 transition-all duration-500" 
+                style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+              ></div>
+            </div>
+            <span className="text-slate-500 font-black text-sm whitespace-nowrap">
+              {currentQuestion + 1} / {questions.length}
+            </span>
+          </div>
+
+          <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden p-8 md:p-14">
+            <div className="mb-10">
+              <span className="bg-indigo-50 text-indigo-600 text-xs font-black px-4 py-1.5 rounded-full border border-indigo-100 uppercase tracking-tighter">
+                Question {currentQuestion + 1}
+              </span>
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mt-6 leading-tight">
+                {questions[currentQuestion].text}
+              </h3>
+            </div>
+
+            <div className="grid gap-4">
+              {questions[currentQuestion].options.map((option, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    const newAnswers = [...answers];
+                    newAnswers[currentQuestion] = index;
+                    setAnswers(newAnswers);
+                  }}
+                  className={`w-full text-left p-6 rounded-3xl border-2 transition-all group flex items-center gap-6 ${
+                    answers[currentQuestion] === index
+                      ? 'border-indigo-600 bg-indigo-50/50'
+                      : 'border-slate-100 hover:border-slate-300 bg-white'
+                  }`}
+                >
+                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black transition-colors ${
+                    answers[currentQuestion] === index
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'
+                  }`}>
+                    {String.fromCharCode(65 + index)}
+                  </div>
+                  <span className={`text-lg font-bold ${answers[currentQuestion] === index ? 'text-indigo-900' : 'text-slate-700'}`}>
+                    {option}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="p-8">
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="bg-blue-100 text-blue-700 text-sm font-bold px-3 py-1 rounded-full">
-                  Q{currentQuestion + 1}/{questions.length}
-                </span>
-                <span className="text-sm text-slate-500">Practice Question</span>
-              </div>
-              
-              <h3 className="text-lg font-bold text-slate-900 mb-6">
-                {questions[currentQuestion].text}
-              </h3>
-
-              <div className="space-y-3">
-                {questions[currentQuestion].options.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      const newAnswers = [...answers];
-                      newAnswers[currentQuestion] = index;
-                      setAnswers(newAnswers);
-                    }}
-                    className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                      answers[currentQuestion] === index
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold ${
-                        answers[currentQuestion] === index
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-slate-100 text-slate-600'
-                      }`}>
-                        {String.fromCharCode(65 + index)}
-                      </div>
-                      <span>{option}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex justify-between">
+          {/* Navigation */}
+          <div className="mt-10 flex justify-between items-center">
+            <button
+              disabled={currentQuestion === 0}
+              onClick={() => setCurrentQuestion(prev => prev - 1)}
+              className="px-8 py-4 rounded-2xl border-2 border-slate-200 text-slate-600 font-black hover:bg-white disabled:opacity-0 transition-all"
+            >
+              Previous Question
+            </button>
+            
+            {currentQuestion === questions.length - 1 ? (
               <button
-                disabled={currentQuestion === 0}
-                onClick={() => setCurrentQuestion(prev => prev - 1)}
-                className="px-6 py-3 rounded-lg border border-slate-300 text-slate-700 font-bold disabled:opacity-30"
+                onClick={handleSubmit}
+                className="px-12 py-4 rounded-2xl bg-indigo-600 text-white font-black shadow-xl shadow-indigo-100 hover:scale-105 active:scale-95 transition-all"
               >
-                ← Previous
+                Submit Practice Test
               </button>
-              
-              {currentQuestion === questions.length - 1 ? (
-                <button
-                  onClick={handleSubmit}
-                  className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold"
-                >
-                  Submit Test
-                </button>
-              ) : (
-                <button
-                  onClick={() => setCurrentQuestion(prev => prev + 1)}
-                  className="px-6 py-3 rounded-lg bg-slate-100 text-slate-700 font-bold"
-                >
-                  Next →
-                </button>
-              )}
-            </div>
+            ) : (
+              <button
+                onClick={() => setCurrentQuestion(prev => prev + 1)}
+                className="px-12 py-4 rounded-2xl bg-slate-900 text-white font-black hover:bg-slate-800 transition-all flex items-center gap-2"
+              >
+                Next Question <ArrowRight size={20} />
+              </button>
+            )}
           </div>
         </div>
       </div>
