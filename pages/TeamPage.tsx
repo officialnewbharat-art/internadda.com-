@@ -11,7 +11,7 @@ const teamMembers = [
     education: 'Entrepreneur | EdTech & AI',
     image: 'https://iili.io/fbR5Kkx.png',
     bio: 'Building InternAdda to bridge the gap between students and real-world industry experience.',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/luckytiwari/',
     twitter: '#',
     expertise: ['EdTech', 'AI Strategy', 'Leadership', 'Startup Growth']
   },
@@ -22,7 +22,7 @@ const teamMembers = [
     education: 'Public Relations & Brand Communication',
     image: 'https://iili.io/fbRADV1.png',
     bio: 'Leads partnerships, outreach, and brand positioning for InternAdda.',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/vikash-yadav-626097313/',
     twitter: '#',
     expertise: ['Public Relations', 'Brand Strategy', 'Partnerships', 'Community Building']
   },
@@ -33,7 +33,7 @@ const teamMembers = [
     education: 'Full Stack Engineer | System Architect',
     image: 'https://iili.io/fbRAyla.png',
     bio: 'Driving the technical vision and building scalable platforms for students.',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/sumit-pandey-a94a052a1/',
     twitter: '#',
     expertise: ['Full Stack', 'System Architecture', 'AI/ML', 'Cloud']
   },
@@ -44,7 +44,7 @@ const teamMembers = [
     education: 'Operations & Growth Management',
    image: 'https://iili.io/fbRRJHv.png',
     bio: 'Oversees operations, execution, and scaling of InternAdda.',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/pranjal-singh-204580374/',
     twitter: '#',
     expertise: ['Operations', 'Process Building', 'Business Strategy', 'Scaling']
   },
@@ -55,7 +55,7 @@ const teamMembers = [
     education: 'BHU',
     image: 'https://iili.io/fmKACQa.jpg',
     bio: 'Internadda changed my life. From test to internship offer in just 3 days.',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/company/internadda-india',
     twitter: '#',
     expertise: ['Software Development', 'Problem Solving', 'Web Technologies']
   },
@@ -66,7 +66,7 @@ const teamMembers = [
     education: 'Amity University',
     image: 'https://iili.io/fmLWXGs.png',
     bio: 'The direct interview process eliminated months of uncertainty.',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/payal-mittal-7b0433399/',
     twitter: '#',
     expertise: ['Human Resources', 'Recruitment', 'Talent Management']
   },
@@ -77,7 +77,7 @@ const teamMembers = [
     education: 'Delhi University',
     image: 'https://iili.io/fmQq6Sp.jpg',
     bio: 'Skill-based assessment got me noticed by the right people.',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/anurag-tiwari-025982312/',
     twitter: '#',
     expertise: ['Marketing Strategy', 'Brand Growth', 'Digital Campaigns']
   },
@@ -88,7 +88,7 @@ const teamMembers = [
     education: 'IP University',
     image: 'https://iili.io/fmKMQPS.jpg',
     bio: 'Skill-based assessment got me noticed by the right people.',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/company/internadda-india',
     twitter: '#',
     expertise: ['Web Development', 'Frontend', 'UI Integration']
   }
