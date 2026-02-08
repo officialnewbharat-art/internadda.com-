@@ -172,7 +172,7 @@ const Home: React.FC = () => {
               { label: 'Active Roles', value: '300+', icon: Briefcase },
               { label: 'Corporate Partners', value: '150+', icon: Building2 },
               { label: 'Avg. Stipend', value: '₹6,500', icon: Award },
-              { label: 'Hiring Time', value: '72 Hours', icon: Clock },
+              { label: 'Hiring Time', value: '48 Hours', icon: Clock },
             ].map((stat, i) => (
               <div key={i} className="flex items-center gap-4">
                 <div className="p-2 bg-slate-50 rounded-lg text-indigo-600 border border-slate-100">
