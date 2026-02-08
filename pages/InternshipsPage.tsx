@@ -153,7 +153,7 @@ const InternshipsPage: React.FC = () => {
             <div className="space-y-6">
               {[
                 { icon: <BadgeCheck className="text-emerald-400" />, title: "Personalized Skill Path", desc: "Every assessment is tailored to the specific card you select." },
-                { icon: <BadgeCheck className="text-emerald-400" />, title: "Trust-Back Guarantee", desc: "Pay ₹199 and get a guaranteed interview or your money back." },
+                { icon: <BadgeCheck className="text-emerald-400" />, title: "One-Time ₹199 Fee", desc: "AI-Based Interview Matching with Partner Companies." },
                 { icon: <BadgeCheck className="text-emerald-400" />, title: "Direct Placement", desc: "Skip the queue and talk directly to hiring managers at top startups." }
               ].map((item, idx) => (
                 <div key={idx} className="flex gap-4">
