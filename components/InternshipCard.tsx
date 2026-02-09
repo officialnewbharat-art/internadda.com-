@@ -15,9 +15,9 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
     'Marketing': 'https://iili.io/fpX77hG.png',
     'Design': 'https://iili.io/fphuvwJ.md.png',
     'Finance': 'https://iili.io/fphNljf.png',
-    'Backend': 'https://iili.io/fphNcTG.md.png',
-    'AI/ML': 'https://iili.io/fphNYps.md.png',
-    'Content': 'https://iili.io/fphN7vn.md.png',
+    'Backend Systems': 'https://iili.io/fphNcTG.md.png',
+    'AI/ML Research': 'https://iili.io/fphNYps.md.png',
+    'Content Strategy': 'https://iili.io/fphN7vn.md.png',
   };
 
   // Select the specific image for the category, or use a default if not found
