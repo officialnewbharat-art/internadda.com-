@@ -96,23 +96,23 @@ const teamMembers = [
 
   const advisors = [
     {
-      name: 'Dr. Sanjay Mehta',
+      name: 'Gautam kumar Pandey',
       role: 'Academic Advisor',
-      position: 'Professor, IIT Bombay',
+      position: 'Senior Data Analyst, Hioki',
       image: 'https://picsum.photos/seed/sanjayadvisor/300',
       bio: 'Leading researcher in education technology and skill development.'
     },
     {
-      name: 'Rina Kapoor',
+      name: 'Mahesh Bhupati',
       role: 'Industry Advisor',
-      position: 'Director, Google India',
+      position: 'Professor, Delhi University',
       image: 'https://picsum.photos/seed/rinaadvisor/300',
       bio: 'Expert in tech hiring and industry-academia collaboration.'
     },
     {
-      name: 'Arjun Malhotra',
+      name: 'V.S Dixit',
       role: 'Startup Advisor',
-      position: 'Angel Investor',
+      position: 'Professor, Delhi University',
       image: 'https://picsum.photos/seed/arjunadvisor/300',
       bio: 'Serial entrepreneur with multiple successful EdTech exits.'
     }
