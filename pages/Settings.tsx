@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '../types'; 
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../services/supabaseClient'; // Ensure this path is correct
+import { supabase } from '../services/supabaseClient';
 
 interface SettingsProps {
   user: User;
@@ -9,6 +9,7 @@ interface SettingsProps {
 }
 
 const Settings: React.FC<SettingsProps> = ({ user: initialUser, setUser }) => {
+  // Local state to manage form inputs
   const [localUser, setLocalUser] = useState<User>(initialUser);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -25,6 +26,7 @@ const Settings: React.FC<SettingsProps> = ({ user: initialUser, setUser }) => {
   ];
 
   useEffect(() => {
+    // Sync local state if the initialUser prop changes
     setLocalUser(initialUser);
     setSkills(initialUser.skills || []);
   }, [initialUser]);
@@ -50,16 +52,20 @@ const Settings: React.FC<SettingsProps> = ({ user: initialUser, setUser }) => {
           domain: updatedUser.domain,
           updated_at: updatedUser.updatedAt
         })
-        .eq('id', updatedUser.id); // Matches the UUID in your table
+        .eq('id', updatedUser.id);
 
       if (error) throw error;
 
-      // 2. Update localStorage and App State
+      // 2. Update localStorage so data persists on refresh
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      // 3. Update global and local state
       setUser(updatedUser);
       setLocalUser(updatedUser);
+      
       setSaved(true);
       
+      // Redirect back to profile after a short delay
       setTimeout(() => {
         navigate('/profile');
       }, 1500);
@@ -92,6 +98,7 @@ const Settings: React.FC<SettingsProps> = ({ user: initialUser, setUser }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Basic Info Section */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
             <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
               <span className="w-1.5 h-5 bg-indigo-600 rounded-full"></span> Basic Information
@@ -155,6 +162,7 @@ const Settings: React.FC<SettingsProps> = ({ user: initialUser, setUser }) => {
             </div>
           </div>
 
+          {/* Skills Section */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
             <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
               <span className="w-1.5 h-5 bg-emerald-600 rounded-full"></span> Your Skills
@@ -182,6 +190,7 @@ const Settings: React.FC<SettingsProps> = ({ user: initialUser, setUser }) => {
             </div>
           </div>
 
+          {/* Action Buttons */}
           <div className="flex items-center justify-between border-t pt-6">
             <p className="text-xs text-slate-500">* All information is stored securely.</p>
             <div className="flex items-center gap-4">
