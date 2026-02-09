@@ -72,7 +72,7 @@ const ApplyPage: React.FC = () => {
         <div className="space-y-6">
           <div className="bg-slate-900 rounded-[32px] p-8 text-white">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <CheckCircle2 className="text-emerald-400" /> Guaranteed Internship
+              <CheckCircle2 className="text-emerald-400" /> Professional Internship
             </h3>
             <ul className="space-y-4">
               {[
