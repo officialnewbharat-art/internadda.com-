@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_INTERNSHIPS } from '../constants';
+import { storeQualifiedCandidate } from '../services/supabaseInterviews';
 import { Clock, CheckCircle, Loader2, ArrowRight, ShieldAlert, Cpu, AlertCircle, BarChart3, Target, Trophy, Brain, Timer, ChevronRight, ChevronLeft, MessageSquare, Database, Calendar } from 'lucide-react';
 
 const ProfessionalTestEngine: React.FC = () => {
@@ -1794,7 +1795,18 @@ const ProfessionalTestEngine: React.FC = () => {
     
     // Store results if passed (50%+)
     if (finalScore >= 50) {
-      // Store interview data in localStorage (for database later)
+        const interviewData = {
+          user_id: user.id, // Ensure this matches your UUID column
+          student_name: user.name,
+          student_email: user.email,
+          student_phone: user.phone,
+          internship_id: internship?.id,
+          internship_title: internship?.title,
+          company: internship?.company,
+          category: internship?.category,
+          score: finalScore,
+          status: 'awaiting_interview'
+        };
       const interviewData = {
         internshipId: internship?.id,
         internshipTitle: internship?.title,
@@ -1809,7 +1821,21 @@ const ProfessionalTestEngine: React.FC = () => {
         referenceId: `IA-${Date.now()}-${internship?.id}-${user.id.substring(0, 8)}`
       };
 
-      localStorage.setItem(`interview_qualified_${internship?.id}`, JSON.stringify(interviewData));
+      // --- ADD THIS CALL TO SAVE TO DATABASE ---
+          await storeQualifiedCandidate(interviewData);
+          
+          // Also consider saving to the 'test_results' table you created
+          await supabase.from('test_results').insert([{
+              user_id: user.id,
+              test_type: 'professional',
+              test_name: internship?.title,
+              score: finalScore,
+              passed: finalScore >= 50
+          }]);
+        }
+        
+        setIsSubmitted(true);
+      };
       
       // Update user's completed assessments
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
