@@ -8,7 +8,7 @@ const teamMembers = [
     name: 'Lucky Tiwari',
     role: 'Founder & CEO',
     education: 'Entrepreneur | EdTech & AI',
-    image: 'https://iili.io/fbR5Kkx.png',
+    image: 'https://iili.io/fpVtSXS.md.png',
     bio: 'Building InternAdda to bridge the gap between students and real industry experience.',
     linkedin: 'https://www.linkedin.com/in/luckytiwari/'  
   },
@@ -17,7 +17,7 @@ const teamMembers = [
     name: 'Vikash Yadav',
     role: 'Co-Founder & PR Head',
     education: 'Public Relations & Brand Strategy',
-    image: 'https://iili.io/fbRADV1.png',
+    image: 'https://iili.io/fpVtDhB.png',
     bio: 'Managing partnerships, outreach, and public relations for InternAdda.',
     linkedin: 'https://www.linkedin.com/in/vikash-yadav-626097313/'
   },
@@ -35,7 +35,7 @@ const teamMembers = [
     name: 'Pranjal Singh',
     role: 'COO',
     education: 'Operations & Growth Strategy',
-    image: 'https://iili.io/fbRRJHv.png',
+    image: 'https://iili.io/fpVtbLP.md.png',
     bio: 'Handling day-to-day operations and scaling the organization.',
     linkedin: 'https://www.linkedin.com/in/pranjal-singh-204580374/'
   }
@@ -54,7 +54,7 @@ const teamMembers = [
       name: 'Aarav Sharma',
       college: 'BHU',
       role: 'Software Engineer @ Internadda',
-      image: 'https://iili.io/fmKACQa.jpg',
+      image: 'https://iili.io/fpVtUL7.md.jpg',
       quote: "Internadda changed my life. From test to Internship offer in 3 days.",
       stats: { placedIn: '3 days', salary: '₹15K' }
     },
@@ -62,7 +62,7 @@ const teamMembers = [
       name: 'Payal Mittal',
       college: 'Amity University',
       role: 'HR Manager @ Internadda',
-      image: 'https://iili.io/fmLWXGs.png',
+      image: 'https://iili.io/fpVt8I2.md.png',
       quote: "The direct interview process eliminated months of uncertainty.",
       stats: { placedIn: '48 hours', salary: '₹10K' }
     },
@@ -70,7 +70,7 @@ const teamMembers = [
       name: 'Anurag Tiwari',
       college: 'Delhi University',
       role: 'Chief Marketing Officer @ Internadda',
-      image: 'https://iili.io/fmQq6Sp.jpg',
+      image: 'https://iili.io/fpVtAs1.md.jpg',
       quote: "Skill-based assessment got me noticed by the right people.",
       stats: { placedIn: '5 days', salary: '₹12K' }
     }
