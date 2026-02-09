@@ -1,4 +1,4 @@
-import { supabase } from '../services/supabaseClient';
+import { supabase } from './supabaseClient';
 
 export interface InterviewQualifiedCandidate {
   user_id: string;
@@ -10,14 +10,31 @@ export interface InterviewQualifiedCandidate {
   company: string;
   category: string;
   score: number;
-  status?: 'awaiting_interview' | 'interview_scheduled' | 'interview_completed';
+  status?: string;
 }
 
+/**
+ * Stores a candidate who has passed the assessment into the 
+ * interview_qualified_candidates table.
+ */
 export const storeQualifiedCandidate = async (candidate: InterviewQualifiedCandidate) => {
   try {
     const { data, error } = await supabase
       .from('interview_qualified_candidates')
-      .insert([candidate])
+      .insert([
+        {
+          user_id: candidate.user_id,
+          student_name: candidate.student_name,
+          student_email: candidate.student_email,
+          student_phone: candidate.student_phone,
+          internship_id: candidate.internship_id,
+          internship_title: candidate.internship_title,
+          company: candidate.company,
+          category: candidate.category,
+          score: candidate.score,
+          status: candidate.status || 'awaiting_interview'
+        }
+      ])
       .select();
     
     if (error) {
@@ -25,7 +42,6 @@ export const storeQualifiedCandidate = async (candidate: InterviewQualifiedCandi
       throw error;
     }
     
-    console.log('Candidate stored in database:', data);
     return data;
   } catch (error) {
     console.error('Failed to store candidate:', error);
@@ -33,6 +49,9 @@ export const storeQualifiedCandidate = async (candidate: InterviewQualifiedCandi
   }
 };
 
+/**
+ * Fetches qualified candidates, optionally filtered by user_id.
+ */
 export const getQualifiedCandidates = async (userId?: string) => {
   try {
     let query = supabase
