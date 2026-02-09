@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Linkedin, Instagram, Youtube, Mail, MapPin, ChevronRight } from 'lucide-react';
+import { Linkedin, Instagram, Youtube, Mail, MapPin, ChevronRight, Globe } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -19,7 +19,7 @@ const Footer: React.FC = () => {
     }
   ];
 
-  // Social Media Links with Actual Icons
+  // Social Media Links
   const socials = [
     { 
       name: 'LinkedIn', 
@@ -39,6 +39,18 @@ const Footer: React.FC = () => {
       url: 'https://www.youtube.com/@theinternadda',
       hoverClass: 'hover:bg-[#FF0000]' 
     }
+  ];
+
+  // SEO Keywords Section
+  const popularSearches = [
+    { name: "Internships in India", path: "/internships" },
+    { name: "Remote Python Internships", path: "/internships" },
+    { name: "Web Development Internships", path: "/internships" },
+    { name: "Data Science Internships", path: "/internships" },
+    { name: "Marketing Internships", path: "/internships" },
+    { name: "Online Courses with Certificates", path: "https://courses.internadda.com/" },
+    { name: "Internships in Delhi", path: "/internships" },
+    { name: "Summer Internships 2024", path: "/internships" }
   ];
 
   return (
@@ -125,8 +137,28 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
+        {/* SEO - Popular Searches Section */}
+        <div className="mt-16 pt-8 border-t border-slate-800">
+          <h4 className="text-white font-bold text-sm mb-6 flex items-center gap-2">
+            <Globe size={16} className="text-indigo-400" /> Popular Internship Searches
+          </h4>
+          <div className="flex flex-wrap gap-x-6 gap-y-3">
+            {popularSearches.map((search, idx) => (
+              search.path.startsWith('http') ? (
+                <a key={idx} href={search.path} target="_blank" rel="noopener noreferrer" className="text-[12px] text-slate-500 hover:text-indigo-400 transition-colors">
+                  {search.name}
+                </a>
+              ) : (
+                <Link key={idx} to={search.path} className="text-[12px] text-slate-500 hover:text-indigo-400 transition-colors">
+                  {search.name}
+                </Link>
+              )
+            ))}
+          </div>
+        </div>
+
         {/* Contact & Newsletter Bar */}
-        <div className="mt-16 pt-8 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="mt-12 pt-8 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {/* Contact Details */}
           <div className="text-center md:text-left space-y-3">
             <h4 className="text-white font-bold text-sm mb-4">Contact Support</h4>
@@ -173,7 +205,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-{/* Bottom Bar */}
+        {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-center">
           <p className="text-[11px] text-slate-500">
             © {currentYear} Internadda Platform. All rights reserved. 
