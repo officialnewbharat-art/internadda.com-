@@ -10,12 +10,12 @@ const Footer: React.FC = () => {
     { 
       name: 'Lucky Tiwari', 
       role: 'Founder & CEO', 
-      image: "https://iili.io/fbR5Kkx.png" 
+      image: "https://iili.io/fpVtSXS.md.png" 
     },
     { 
       name: 'Vikash Yadav', 
       role: 'Co-Founder & PR head', 
-      image: "https://iili.io/fbRADV1.png" 
+      image: "https://iili.io/fpVtDhB.png" 
     }
   ];
 
