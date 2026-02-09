@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import { supabase } from '../services/supabaseClient';
 
 export interface InterviewQualifiedCandidate {
   user_id: string;
