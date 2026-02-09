@@ -9,17 +9,17 @@ export interface Internship {
   stipend: string;
   location: string;
   type: 'Remote' | 'On-site' | 'Hybrid';
-  status: 'ACTIVE' | 'CLOSED';
+  status: 'ACTIVE' | 'CLOSED' | 'DRAFT' | 'UPCOMING';
   description: string;
   skills: string[];
-  duration?: string; // Added: e.g., "6 Months"
-  applicationFee?: number; // Added: e.g., 199
+  duration?: string; // e.g., "6 Months"
+  applicationFee?: number; // e.g., 199
   createdAt?: string;
   updatedAt?: string;
   companyLogo?: string;
-  requirements?: string[]; // Added: Job requirements
-  responsibilities?: string[]; // Added: Key responsibilities
-  benefits?: string[]; // Added: Internship benefits
+  requirements?: string[];
+  responsibilities?: string[];
+  benefits?: string[];
   applicationDeadline?: string;
   openings?: number;
   appliedCount?: number;
@@ -30,11 +30,11 @@ export interface Question {
   text: string;
   options: string[];
   correctAnswer: number;
-  explanation?: string; // Added: Explanation for answer
-  category?: string; // Added: Question category/topic
-  difficulty?: 'Easy' | 'Medium' | 'Hard'; // Added: Difficulty level
-  timeLimit?: number; // Added: Time limit in seconds
-  domain?: string; // Added: Domain specific (Python, Web Dev, etc.)
+  explanation?: string;
+  category?: string;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
+  timeLimit?: number; // in seconds
+  domain?: string; // e.g., "Python", "Web Dev"
 }
 
 export interface User {
@@ -45,21 +45,21 @@ export interface User {
   education: string;
   domain: string;
   unlockedRealTest: boolean;
-  skills?: string[]; // Added: User skills array
-  profileImage?: string; // Added: Profile picture URL
-  college?: string; // Added: College/University
-  yearOfStudy?: string; // Added: e.g., "3rd Year", "Final Year"
-  resumeUrl?: string; // Added: Resume file URL
-  linkedinUrl?: string; // Added: LinkedIn profile
-  githubUrl?: string; // Added: GitHub profile
-  portfolioUrl?: string; // Added: Portfolio website
-  bio?: string; // Added: Short bio/about
+  skills?: string[];
+  profileImage?: string;
+  college?: string;
+  yearOfStudy?: string;
+  resumeUrl?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  portfolioUrl?: string;
+  bio?: string;
   createdAt?: string;
   updatedAt?: string;
   lastLogin?: string;
   isEmailVerified?: boolean;
   isPhoneVerified?: boolean;
-  preferences?: UserPreferences; // Added: User preferences
+  preferences?: UserPreferences;
 }
 
 // Alias for backward compatibility
@@ -84,15 +84,15 @@ export interface PaymentDetails {
   amount: number;
   status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'CANCELLED';
   transactionId?: string;
-  paymentGateway: 'CASFREE' | 'RAZORPAY' | 'STRIPE' | 'PAYPAL' | 'OTHER';
+  paymentGateway: 'CASHFREE' | 'RAZORPAY' | 'STRIPE' | 'PAYPAL' | 'OTHER';
   orderId: string;
-  currency: string; // Added: e.g., "INR", "USD"
-  paymentMethod?: string; // Added: e.g., "UPI", "Card", "NetBanking"
+  currency: string; // e.g., "INR"
+  paymentMethod?: string; // e.g., "UPI", "Card"
   paymentDate?: string;
   refundDate?: string;
   refundAmount?: number;
   refundReason?: string;
-  gatewayResponse?: Record<string, any>; // Added: Raw response from payment gateway
+  gatewayResponse?: Record<string, any>;
   createdAt: string;
   updatedAt?: string;
 }
@@ -131,15 +131,15 @@ export interface TestResult {
   score: number;
   passed: boolean;
   date: string;
-  totalQuestions: number; // Added: Total questions in test
-  correctAnswers: number; // Added: Number of correct answers
-  timeTaken: number; // Added: Time taken in seconds
-  testType: 'PRACTICE' | 'REAL'; // Added: Test type
-  domain?: string; // Added: Test domain/category
-  answers?: UserAnswer[]; // Added: Detailed answers
-  percentile?: number; // Added: Percentile score
-  rank?: number; // Added: Rank among test takers
-  certificateId?: string; // Added: Certificate ID if passed
+  totalQuestions: number;
+  correctAnswers: number;
+  timeTaken: number; // in seconds
+  testType: 'PRACTICE' | 'REAL';
+  domain?: string;
+  answers?: UserAnswer[];
+  percentile?: number;
+  rank?: number;
+  certificateId?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -148,7 +148,7 @@ export interface UserAnswer {
   questionId: string;
   selectedOption: number;
   isCorrect: boolean;
-  timeSpent: number; // Added: Time spent on question in seconds
+  timeSpent: number; // in seconds
   questionDifficulty?: 'Easy' | 'Medium' | 'Hard';
 }
 
@@ -156,19 +156,19 @@ export interface TestSession {
   id: string;
   userId: string;
   internshipId: string;
-  paymentId?: string; // Added: Link to payment
+  paymentId?: string;
   status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'TIMED_OUT' | 'CANCELLED';
   startTime: string;
   endTime?: string;
-  totalTime?: number; // Added: Total test duration in seconds
-  warnings: number; // Added: Number of warnings (tab switching, etc.)
-  isFullscreen: boolean; // Added: Was test taken in fullscreen
-  deviceInfo?: { // Added: Device information
+  totalTime?: number; // duration in seconds
+  warnings: number; // tab switching, etc.
+  isFullscreen: boolean;
+  deviceInfo?: {
     userAgent: string;
     platform: string;
     screenResolution: string;
   };
-  ipAddress?: string; // Added: For security
+  ipAddress?: string;
   createdAt: string;
   updatedAt?: string;
 }
@@ -182,16 +182,16 @@ export interface Application {
   status: 'PENDING' | 'UNDER_REVIEW' | 'SHORTLISTED' | 'REJECTED' | 'SELECTED' | 'WITHDRAWN';
   appliedDate: string;
   lastUpdated: string;
-  paymentId?: string; // Added: Link to payment
-  testResultId?: string; // Added: Link to test result
-  interviewScheduleId?: string; // Added: Link to interview
-  offerLetterId?: string; // Added: Link to offer letter
-  notes?: string; // Added: Internal notes
-  resumeVersion?: string; // Added: Resume version used
-  coverLetter?: string; // Added: Cover letter text
-  applicationSource?: string; // Added: How they applied
-  expectedStipend?: string; // Added: Expected stipend
-  availabilityDate?: string; // Added: When available to start
+  paymentId?: string;
+  testResultId?: string;
+  interviewScheduleId?: string;
+  offerLetterId?: string;
+  notes?: string;
+  resumeVersion?: string;
+  coverLetter?: string;
+  applicationSource?: string;
+  expectedStipend?: string;
+  availabilityDate?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -203,15 +203,15 @@ export interface InterviewSchedule {
   internshipId: string;
   scheduledDate: string;
   scheduledTime: string;
-  duration: number; // Added: Duration in minutes
+  duration: number; // in minutes
   interviewerName?: string;
   interviewerEmail?: string;
   interviewType: 'VIDEO' | 'PHONE' | 'IN_PERSON';
-  platform?: string; // Added: e.g., "Zoom", "Google Meet", "Microsoft Teams"
+  platform?: string; // e.g., "Google Meet"
   meetingLink?: string;
   status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED' | 'NO_SHOW';
   feedback?: string;
-  rating?: number; // Added: Interview rating 1-5
+  rating?: number;
   notes?: string;
   followUpDate?: string;
   createdAt: string;
@@ -222,17 +222,17 @@ export interface InterviewSchedule {
 
 export interface Certificate {
   id: string;
-  certificateId: string; // Added: Unique certificate number
+  certificateId: string;
   userId: string;
   internshipId: string;
   testResultId: string;
   issuedDate: string;
   expiryDate?: string;
-  verificationUrl: string; // Added: URL to verify certificate
-  qrCodeUrl: string; // Added: QR code for verification
-  issuerName: string; // Added: "Internadda" or "Partner Company"
+  verificationUrl: string;
+  qrCodeUrl: string;
+  issuerName: string;
   issuerLogo: string;
-  skillsVerified: string[]; // Added: Skills verified by test
+  skillsVerified: string[];
   certificateType: 'SKILL_ASSESSMENT' | 'INTERNSHIP_COMPLETION' | 'PARTICIPATION';
   downloadUrl: string;
   isRevoked: boolean;
@@ -243,7 +243,7 @@ export interface Certificate {
 
 export interface OfferLetter {
   id: string;
-  offerId: string; // Added: Unique offer ID
+  offerId: string;
   userId: string;
   internshipId: string;
   applicationId: string;
@@ -267,7 +267,7 @@ export interface OfferLetter {
   terminationClause?: string;
   confidentialityClause?: boolean;
   intellectualPropertyClause?: boolean;
-  documentUrl: string; // Added: PDF download URL
+  documentUrl: string;
   acceptedDate?: string;
   responseDeadline?: string;
   createdAt: string;
@@ -282,12 +282,12 @@ export interface Notification {
   type: 'APPLICATION' | 'TEST' | 'INTERVIEW' | 'OFFER' | 'PAYMENT' | 'SYSTEM' | 'REMINDER';
   title: string;
   message: string;
-  data?: Record<string, any>; // Added: Additional data
+  data?: Record<string, any>;
   isRead: boolean;
   isArchived: boolean;
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-  actionUrl?: string; // Added: URL to navigate on click
-  actionLabel?: string; // Added: Action button label
+  actionUrl?: string;
+  actionLabel?: string;
   sentAt: string;
   readAt?: string;
   expiresAt?: string;
@@ -304,9 +304,9 @@ export interface UserStats {
   profileCompletion: number;
   skillScore: number;
   averageTestScore: number;
-  streakDays: number; // Added: Login/activity streak
-  rank: number; // Added: Overall rank
-  percentile: number; // Added: Percentile among users
+  streakDays: number;
+  rank: number;
+  percentile: number;
   lastActivity: string;
 }
 
@@ -317,35 +317,10 @@ export interface PlatformStats {
   activeInternships: number;
   totalApplications: number;
   successfulPlacements: number;
-  averagePlacementTime: number; // Added: in days
+  averagePlacementTime: number; // in days
   totalRevenue: number;
   partnerCompanies: number;
-  userSatisfaction: number; // Added: Average rating 1-5
-}
-
-// ==================== ADMIN INTERFACES ====================
-
-export interface AdminUser {
-  id: string;
-  email: string;
-  name: string;
-  role: 'SUPER_ADMIN' | 'ADMIN' | 'MODERATOR' | 'SUPPORT';
-  permissions: string[];
-  isActive: boolean;
-  lastLogin?: string;
-  createdAt: string;
-}
-
-export interface AuditLog {
-  id: string;
-  adminId: string;
-  action: string;
-  entityType: string;
-  entityId: string;
-  changes?: Record<string, any>;
-  ipAddress: string;
-  userAgent: string;
-  timestamp: string;
+  userSatisfaction: number;
 }
 
 // ==================== SETTINGS & CONFIGURATION ====================
@@ -354,9 +329,9 @@ export interface AppSettings {
   maintenanceMode: boolean;
   registrationOpen: boolean;
   applicationFee: number;
-  testDuration: number; // Added: in minutes
-  passingScore: number; // Added: percentage
-  maxRetakeDays: number; // Added: Days before retake allowed
+  testDuration: number; // in minutes
+  passingScore: number; // percentage
+  maxRetakeDays: number;
   refundPolicy: string;
   privacyPolicy: string;
   termsOfService: string;
