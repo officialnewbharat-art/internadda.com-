@@ -9,9 +9,10 @@ interface InternshipCardProps {
 const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
   // Enhanced resources for authenticity
   const CARD_IMAGES = [
-    "https://iili.io/fpX77hG.png",
-    "https://iili.io/fbArEUF.png",
-    "https://iili.io/fbAQsTX.md.png"
+    "https://iili.io/fpXQmt2.png",
+    "https://iili.io/fpXZ9M7.md.png",
+    "https://iili.io/fpXQynS.md.png",
+    "https://iili.io/fpX77hG.png"
   ];
 
   const COMPANY_LOGOS = [
