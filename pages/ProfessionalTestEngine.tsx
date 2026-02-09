@@ -1755,89 +1755,67 @@ const ProfessionalTestEngine: React.FC = () => {
     return () => clearInterval(timer);
   }, [isAuthorized, isSubmitted, showInstructions]);
 
-  const handleSubmit = () => {
-    let correct = 0;
-    let easyCorrect = 0, easyTotal = 0;
-    let mediumCorrect = 0, mediumTotal = 0;
-    let hardCorrect = 0, hardTotal = 0;
+// 1. Add 'async' here so you can use 'await' inside
+const handleSubmit = async () => {
+  let correct = 0;
+  let easyCorrect = 0, easyTotal = 0;
+  let mediumCorrect = 0, mediumTotal = 0;
+  let hardCorrect = 0, hardTotal = 0;
 
-    selectedQuestions.forEach((q, i) => {
-      // Count by difficulty
-      if (q.difficulty === 'Easy') {
-        easyTotal++;
-        if (answers[i] === q.correctAnswer) {
-          correct++;
-          easyCorrect++;
-        }
-      } else if (q.difficulty === 'Medium') {
-        mediumTotal++;
-        if (answers[i] === q.correctAnswer) {
-          correct++;
-          mediumCorrect++;
-        }
-      } else if (q.difficulty === 'Hard') {
-        hardTotal++;
-        if (answers[i] === q.correctAnswer) {
-          correct++;
-          hardCorrect++;
-        }
+  selectedQuestions.forEach((q, i) => {
+    // Count by difficulty
+    if (q.difficulty === 'Easy') {
+      easyTotal++;
+      if (answers[i] === q.correctAnswer) {
+        correct++;
+        easyCorrect++;
       }
-    });
+    } else if (q.difficulty === 'Medium') {
+      mediumTotal++;
+      if (answers[i] === q.correctAnswer) {
+        correct++;
+        mediumCorrect++;
+      }
+    } else if (q.difficulty === 'Hard') {
+      hardTotal++;
+      if (answers[i] === q.correctAnswer) {
+        correct++;
+        hardCorrect++;
+      }
+    }
+  });
 
-    const finalScore = Math.round((correct / selectedQuestions.length) * 100);
-    setScore(finalScore);
-    setDetailedResults({
-      correct,
-      easy: { correct: easyCorrect, total: easyTotal },
-      medium: { correct: mediumCorrect, total: mediumTotal },
-      hard: { correct: hardCorrect, total: hardTotal }
-    });
-    
-    // Store results if passed (50%+)
-    if (finalScore >= 50) {
-        const interviewData = {
-          user_id: user.id, // Ensure this matches your UUID column
-          student_name: user.name,
-          student_email: user.email,
-          student_phone: user.phone,
-          internship_id: internship?.id,
-          internship_title: internship?.title,
-          company: internship?.company,
-          category: internship?.category,
-          score: finalScore,
-          status: 'awaiting_interview'
-        };
-      const interviewData = {
-        internshipId: internship?.id,
-        internshipTitle: internship?.title,
-        company: internship?.company,
-        category: internship?.category,
-        score: finalScore,
-        status: finalScore >= 60 ? 'qualified_for_interview' : 'passed_but_not_qualified',
-        qualifiedAt: new Date().toISOString(),
-        studentName: user.name,
-        studentEmail: user.email,
-        studentPhone: user.phone,
-        referenceId: `IA-${Date.now()}-${internship?.id}-${user.id.substring(0, 8)}`
-      };
+  const finalScore = Math.round((correct / selectedQuestions.length) * 100);
+  setScore(finalScore);
+  setDetailedResults({
+    correct,
+    easy: { correct: easyCorrect, total: easyTotal },
+    medium: { correct: mediumCorrect, total: mediumTotal },
+    hard: { correct: hardCorrect, total: hardTotal }
+  });
+  
+  // Store results if passed (50%+)
+  if (finalScore >= 50) {
+    // CLEANED UP: Only one declaration of interviewData
+    const interviewData = {
+      user_id: user.id,
+      student_name: user.name,
+      student_email: user.email,
+      student_phone: user.phone,
+      internship_id: internship?.id,
+      internship_title: internship?.title,
+      company: internship?.company,
+      category: internship?.category,
+      score: finalScore,
+      status: finalScore >= 60 ? 'qualified_for_interview' : 'passed_but_not_qualified',
+      reference_id: `IA-${Date.now()}-${internship?.id}-${user.id.substring(0, 8)}`
+    };
 
-      // --- ADD THIS CALL TO SAVE TO DATABASE ---
-          await storeQualifiedCandidate(interviewData);
-          
-          // Also consider saving to the 'test_results' table you created
-          await supabase.from('test_results').insert([{
-              user_id: user.id,
-              test_type: 'professional',
-              test_name: internship?.title,
-              score: finalScore,
-              passed: finalScore >= 50
-          }]);
-        }
-        
-        setIsSubmitted(true);
-      };
+    try {
+      // --- CALL TO SAVE TO DATABASE ---
+      await storeQualifiedCandidate(interviewData);
       
-      // Update user's completed assessments
+      // Update user's completed assessments in localStorage
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const updatedAssessments = [
         ...(userData.completedAssessments || []),
@@ -1865,18 +1843,14 @@ const ProfessionalTestEngine: React.FC = () => {
       }
       
       localStorage.setItem("user", JSON.stringify(userData));
-      
-      console.log('📊 Assessment results stored for manual follow-up:');
-      console.log('Student:', user.name);
-      console.log('Email:', user.email);
-      console.log('Score:', finalScore + '%');
-      console.log('Interview Qualified:', finalScore >= 60 ? 'YES' : 'NO');
-      console.log('Reference ID:', interviewData.referenceId);
+    } catch (error) {
+      console.error("Failed to save assessment results:", error);
     }
-    
-    setIsSubmitted(true);
-    localStorage.removeItem(`test_access_token_${id}`);
-  };
+  }
+  
+  setIsSubmitted(true);
+  localStorage.removeItem(`test_access_token_${id}`);
+};
 
   const startTest = () => {
     setShowInstructions(false);
