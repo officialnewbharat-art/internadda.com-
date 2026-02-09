@@ -7,16 +7,20 @@ interface InternshipCardProps {
 }
 
 const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
-  // Enhanced resources for authenticity
-  const CARD_IMAGES = [
-    "https://iili.io/fpXQmt2.png",
-    "https://iili.io/fpXZ9M7.md.png",
-    "https://iili.io/fpXQynS.md.png",
-    "https://iili.io/fpX77hG.png"
-  ];
+  // Mapping unique images to categories in sequence
+  const categoryImages: Record<string, string> = {
+    'Python': 'https://iili.io/fphukua.md.png',
+    'Web Development': 'https://iili.io/fpXZ9M7.png',
+    'Data Science': 'https://iili.io/fpXQynS.png',
+    'Marketing': 'https://iili.io/fpX77hG.png',
+    'Design': 'https://iili.io/fphuvwJ.md.png'
+  };
+
+  // Select the specific image for the category, or use a default if not found
+  const selectedImage = categoryImages[internship.category] || "https://iili.io/fpX77hG.png";
 
   const COMPANY_LOGOS = [
-    "https://iili.io/fbAXcYB.png", // Main logo
+    "https://iili.io/fbAXcYB.png", 
     "https://iili.io/fmiM6Dg.png",   
     "https://iili.io/fbAXw2p.png",  
     "https://iili.io/fmisLLG.png"
@@ -26,15 +30,9 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
   const COMPANY_NAMES = ["Arjuna-ai Solutions", "Internadda Enterprises", "LAREX Systems"];
 
   const itemIndex = (Number(internship.id) - 1) % 3;
-  const selectedImage = CARD_IMAGES[itemIndex];
   const selectedStipend = STIPENDS[itemIndex];
   const selectedCompanyName = COMPANY_NAMES[itemIndex];
 
-  /** * Realistic Pseudo-Random Count:
-   * We multiply the ID by a prime number (1597) to scramble the sequence.
-   * This ensures ID 1 might be 41, ID 2 might be 23, etc. 
-   * Range: 20 to 50
-   */
   const idSeed = Number(internship.id) * 1597;
   const staticCompanyCount = 20 + (idSeed % 31);
   
@@ -59,12 +57,16 @@ const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
       </div>
 
       <div className="relative h-40 overflow-hidden">
-        <img src={selectedImage} alt={internship.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+        {/* Updated to use the category-specific sequenced image */}
+        <img 
+          src={selectedImage} 
+          alt={internship.title} 
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
       </div>
 
       <div className="p-5 flex flex-col flex-grow">
-        {/* Multi-Company Section */}
         <div className="mb-4">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight block mb-2">Hiring At {selectedCompanyName} & others</span>
           <div className="flex items-center">
