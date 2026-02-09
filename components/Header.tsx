@@ -25,7 +25,12 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = mobileMenuOpen ? 'hidden' : 'unset';
+    // Prevent body scroll only when menu is actually visible
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
   }, [mobileMenuOpen]);
 
   useEffect(() => {
@@ -152,13 +157,14 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
         </div>
       </div>
 
-      <div className={`lg:hidden fixed inset-0 z-[110] transition-all duration-300 ${mobileMenuOpen ? 'visible' : 'invisible'}`}>
+      {/* MOBILE MENU - FIXED GLITCH VERSION */}
+      <div className={`lg:hidden fixed inset-0 z-[110] transition-all duration-300 ${mobileMenuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
         <div 
-          className={`absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
           onClick={() => setMobileMenuOpen(false)}
         />
         
-        <div className={`absolute right-0 top-0 h-full w-[300px] bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-out ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`absolute right-0 top-0 h-full w-[280px] bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-out will-change-transform ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="p-6 border-b flex items-center justify-between">
             <div className="flex flex-col">
               <span className="font-black text-slate-900 text-lg">INTERNADDA</span>
