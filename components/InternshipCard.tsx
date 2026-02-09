@@ -9,7 +9,7 @@ interface InternshipCardProps {
 const InternshipCard: React.FC<InternshipCardProps> = ({ internship }) => {
   // Enhanced resources for authenticity
   const CARD_IMAGES = [
-    "https://iili.io/fbAQLjn.md.png",
+    "https://iili.io/fpX77hG.png",
     "https://iili.io/fbArEUF.png",
     "https://iili.io/fbAQsTX.md.png"
   ];
